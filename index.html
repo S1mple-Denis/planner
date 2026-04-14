@@ -1,0 +1,1398 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Напоминания</title>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey:            "AIzaSyAG8TV-ohf4VmdbIBkYSmHj9xAUGDuwaMA",
+    authDomain:        "brain-dump-b4eb6.firebaseapp.com",
+    databaseURL:       "https://brain-dump-b4eb6-default-rtdb.firebaseio.com",
+    projectId:         "brain-dump-b4eb6",
+    storageBucket:     "brain-dump-b4eb6.firebasestorage.app",
+    messagingSenderId: "149992700983",
+    appId:             "1:149992700983:web:0a079c4995602f5affd3b2"
+  };
+
+  const ok = firebaseConfig.apiKey !== "PASTE_API_KEY";
+
+  if (ok) {
+    const app = initializeApp(firebaseConfig);
+    const db  = getDatabase(app);
+    const dbRef = ref(db, 'planner/v2');
+    let busy = false;
+    window._fbSave = s => {
+      if (busy) return; busy = true;
+      set(dbRef, s).then(()=>{busy=false;sync('icloud');}).catch(e=>{busy=false;sync('err');console.error(e);});
+    };
+    onValue(dbRef, snap => window._fbLoaded(snap.val()));
+  } else {
+    window._fbSave = ()=>{};
+    setTimeout(()=>window._fbLoaded(null), 80);
+  }
+
+  function sync(t) {
+    const el = document.getElementById('syncDot');
+    if (!el) return;
+    el.className = 'sync-dot ' + t;
+    clearTimeout(el._t);
+    el._t = setTimeout(()=>el.className='sync-dot idle', 2500);
+  }
+</script>
+
+<style>
+* { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+
+:root {
+  --bg:        #f2f2f7;
+  --card:      #ffffff;
+  --card2:     #f9f9f9;
+  --sep:       rgba(60,60,67,0.12);
+  --text:      #000000;
+  --text2:     rgba(60,60,67,0.6);
+  --text3:     rgba(60,60,67,0.3);
+  --blue:      #007aff;
+  --red:       #ff3b30;
+  --orange:    #ff9500;
+  --green:     #34c759;
+  --purple:    #af52de;
+  --teal:      #5ac8fa;
+  --gray:      #8e8e93;
+  --radius:    12px;
+  --radius-sm: 8px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg:    #000000;
+    --card:  #1c1c1e;
+    --card2: #2c2c2e;
+    --sep:   rgba(255,255,255,0.1);
+    --text:  #ffffff;
+    --text2: rgba(235,235,245,0.6);
+    --text3: rgba(235,235,245,0.3);
+  }
+}
+
+html { font-size: 16px; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ─── PIN SCREEN ────────────────────────────── */
+#pinScreen {
+  position: fixed; inset: 0;
+  background: var(--bg);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  z-index: 1000; gap: 0;
+}
+.pin-header { text-align: center; margin-bottom: 40px; }
+.pin-icon {
+  width: 60px; height: 60px; border-radius: 15px;
+  background: linear-gradient(145deg, #ff6b6b, var(--red));
+  margin: 0 auto 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px; box-shadow: 0 4px 16px rgba(255,59,48,.3);
+}
+.pin-title { font-size: 22px; font-weight: 700; letter-spacing: -.3px; }
+.pin-sub { color: var(--text2); font-size: 14px; margin-top: 4px; }
+
+.pin-dots { display: flex; gap: 16px; margin-bottom: 44px; justify-content: center; }
+.pdot {
+  width: 14px; height: 14px; border-radius: 50%;
+  background: var(--sep); border: 1.5px solid var(--text3);
+  transition: all .15s;
+}
+.pdot.on { background: var(--blue); border-color: var(--blue); }
+.pdot.err { background: var(--red); border-color: var(--red); animation: shake .3s; }
+@keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-4px)} 75%{transform:translateX(4px)} }
+
+.pin-pad {
+  display: grid; grid-template-columns: repeat(3, 72px);
+  grid-template-rows: repeat(4, 72px);
+  gap: 12px;
+}
+.pkey {
+  width: 72px; height: 72px; border-radius: 50%;
+  background: var(--card);
+  border: none; cursor: pointer;
+  font-size: 24px; font-weight: 400;
+  color: var(--text);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  box-shadow: 0 1px 3px rgba(0,0,0,.1);
+  transition: transform .08s, background .08s;
+  -webkit-user-select: none; user-select: none;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  line-height: 1;
+  gap: 0;
+}
+.pkey:active { transform: scale(.92); background: var(--card2); }
+.pkey .sub { font-size: 8px; font-weight: 600; letter-spacing: 1.5px; color: var(--text2); text-transform: uppercase; margin-top: 1px; }
+.pkey.ghost { background: transparent; box-shadow: none; font-size: 20px; color: var(--blue); }
+.pkey.ghost:active { background: transparent; }
+.pkey.del-key { background: transparent; box-shadow: none; font-size: 20px; }
+.pin-err-msg { color: var(--red); font-size: 13px; margin-top: 20px; min-height: 18px; text-align: center; }
+.pin-change-btn { color: var(--blue); font-size: 15px; margin-top: 28px; cursor: pointer; display: none; }
+
+/* ─── SETUP SCREEN ───────────────────────────── */
+#setup {
+  position: fixed; inset: 0; background: var(--bg);
+  z-index: 999; overflow-y: auto; padding: 60px 20px 40px;
+}
+.setup-inner { max-width: 480px; margin: 0 auto; }
+.setup-top { text-align: center; margin-bottom: 36px; }
+.setup-icon {
+  width: 64px; height: 64px; border-radius: 16px;
+  background: linear-gradient(145deg, #5ac8fa, var(--blue));
+  margin: 0 auto 16px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 30px; box-shadow: 0 6px 20px rgba(0,122,255,.3);
+}
+.setup-top h1 { font-size: 24px; font-weight: 700; margin-bottom: 6px; letter-spacing: -.3px; }
+.setup-top p { color: var(--text2); font-size: 14px; line-height: 1.5; }
+
+.setup-card {
+  background: var(--card); border-radius: var(--radius);
+  overflow: hidden; margin-bottom: 16px;
+}
+.setup-row {
+  display: flex; align-items: flex-start; gap: 14px;
+  padding: 14px 16px; border-bottom: 1px solid var(--sep);
+}
+.setup-row:last-child { border-bottom: none; }
+.setup-num {
+  width: 26px; height: 26px; border-radius: 50%;
+  background: var(--blue); color: white;
+  font-size: 13px; font-weight: 600;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; margin-top: 1px;
+}
+.setup-row-body { flex: 1; }
+.setup-row-title { font-size: 15px; font-weight: 600; margin-bottom: 2px; }
+.setup-row-desc { font-size: 13px; color: var(--text2); line-height: 1.5; }
+.setup-row-desc a { color: var(--blue); text-decoration: none; }
+
+.setup-inputs { margin-top: 10px; display: flex; flex-direction: column; gap: 8px; }
+.ios-input {
+  width: 100%; background: var(--card2); border: 1px solid var(--sep);
+  border-radius: var(--radius-sm); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 14px; padding: 10px 12px; outline: none;
+}
+.ios-input:focus { border-color: var(--blue); }
+.ios-input::placeholder { color: var(--text3); }
+
+.ios-btn {
+  width: 100%; background: var(--blue); color: white;
+  border: none; border-radius: var(--radius); padding: 15px;
+  font-size: 17px; font-weight: 600; cursor: pointer;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  margin-top: 8px; transition: opacity .15s;
+}
+.ios-btn:active { opacity: .8; }
+.setup-note { color: var(--text2); font-size: 12px; text-align: center; line-height: 1.6; margin-top: 12px; }
+
+/* ─── MAIN APP ───────────────────────────────── */
+#app { display: none; }
+
+/* SMART LISTS GRID (top) */
+.smart-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  padding: 16px 16px 0;
+  max-width: 700px; margin: 0 auto;
+}
+.smart-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: opacity .12s;
+  -webkit-user-select: none; user-select: none;
+}
+.smart-card:active { opacity: .7; }
+.sc-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+.sc-icon {
+  width: 30px; height: 30px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px;
+}
+.sc-count { font-size: 26px; font-weight: 700; letter-spacing: -.5px; }
+.sc-label { font-size: 13px; font-weight: 600; color: var(--text2); }
+.sc-icon.blue   { background: rgba(0,122,255,.15); }
+.sc-icon.red    { background: rgba(255,59,48,.15);  }
+.sc-icon.orange { background: rgba(255,149,0,.15);  }
+.sc-icon.green  { background: rgba(52,199,89,.15);  }
+
+/* LIST SECTION */
+.lists-section {
+  max-width: 700px; margin: 0 auto;
+  padding: 20px 16px 0;
+}
+.section-header {
+  font-size: 20px; font-weight: 700;
+  letter-spacing: -.3px;
+  margin-bottom: 10px;
+  padding: 0 4px;
+}
+
+/* LIST ROWS */
+.lists-card { background: var(--card); border-radius: var(--radius); overflow: hidden; }
+.list-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 16px; border-bottom: 1px solid var(--sep);
+  cursor: pointer; transition: background .1s;
+  -webkit-user-select: none; user-select: none;
+}
+.list-row:last-child { border-bottom: none; }
+.list-row:active { background: var(--card2); }
+.list-row-icon {
+  width: 30px; height: 30px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; flex-shrink: 0;
+}
+.list-row-name { flex: 1; font-size: 17px; }
+.list-row-right { display: flex; align-items: center; gap: 6px; }
+.list-row-count { font-size: 17px; color: var(--text2); }
+.list-row-chevron { color: var(--text3); font-size: 13px; }
+.li-dump   { background: rgba(175,82,222,.15); }
+.li-today  { background: rgba(0,122,255,.15);  }
+.li-sched  { background: rgba(255,149,0,.15);  }
+.li-hist   { background: rgba(52,199,89,.15);  }
+
+/* ─── DETAIL VIEW (slides in) ────────────────── */
+#detailView {
+  position: fixed; inset: 0; background: var(--bg);
+  z-index: 50; transform: translateX(100%);
+  transition: transform .32s cubic-bezier(.4,0,.2,1);
+  overflow-y: auto;
+}
+#detailView.open { transform: translateX(0); }
+
+.detail-nav {
+  position: sticky; top: 0; z-index: 10;
+  background: var(--bg);
+  padding: 12px 16px 0;
+  max-width: 700px; margin: 0 auto;
+}
+.detail-nav-inner {
+  display: flex; align-items: center; justify-content: space-between;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--sep);
+}
+.back-btn {
+  display: flex; align-items: center; gap: 3px;
+  color: var(--blue); font-size: 17px; cursor: pointer;
+  background: none; border: none; padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+}
+.back-btn svg { width: 10px; height: 17px; }
+.detail-title-bar {
+  max-width: 700px; margin: 0 auto;
+  padding: 10px 16px 4px;
+  display: flex; align-items: center; gap: 10px;
+}
+.detail-icon {
+  width: 36px; height: 36px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; font-size: 18px;
+}
+.detail-heading { font-size: 28px; font-weight: 700; letter-spacing: -.5px; }
+.detail-body { max-width: 700px; margin: 0 auto; padding: 12px 16px 100px; }
+
+/* ADD TASK BAR */
+.add-bar {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: var(--card);
+  border-top: 1px solid var(--sep);
+  padding: 10px 16px calc(env(safe-area-inset-bottom) + 10px);
+  z-index: 60; display: none;
+  max-width: 700px; margin: 0 auto;
+  left: 50%; transform: translateX(-50%);
+  width: 100%;
+}
+.add-bar.visible { display: flex; gap: 10px; align-items: flex-end; }
+.add-bar-inner { flex: 1; }
+.add-input {
+  width: 100%; background: var(--card2); border: 1px solid var(--sep);
+  border-radius: 20px; padding: 9px 16px;
+  font-size: 15px; color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  outline: none; resize: none; line-height: 1.4; max-height: 80px;
+  overflow-y: auto;
+}
+.add-input:focus { border-color: var(--blue); }
+.add-input::placeholder { color: var(--text3); }
+.add-row2 { display: flex; gap: 8px; margin-top: 7px; }
+.add-sel {
+  flex: 1; background: var(--card2); border: 1px solid var(--sep);
+  border-radius: var(--radius-sm); padding: 7px 10px;
+  font-size: 13px; color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  outline: none;
+}
+.send-btn {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: var(--blue); color: white;
+  border: none; cursor: pointer; font-size: 18px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; transition: opacity .12s;
+}
+.send-btn:active { opacity: .7; }
+.bulk-btn {
+  background: none; border: none; color: var(--blue);
+  font-size: 13px; cursor: pointer; padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  white-space: nowrap;
+}
+
+/* FILTER PILLS */
+.filter-scroll {
+  display: flex; gap: 8px; overflow-x: auto; padding: 0 0 8px;
+  scrollbar-width: none;
+}
+.filter-scroll::-webkit-scrollbar { display: none; }
+.fpill {
+  flex-shrink: 0; padding: 5px 14px;
+  background: var(--card2); border-radius: 20px;
+  font-size: 13px; font-weight: 500; cursor: pointer;
+  color: var(--text2); transition: all .12s;
+  border: 1px solid transparent;
+  -webkit-user-select: none; user-select: none;
+}
+.fpill.active { background: var(--blue); color: white; }
+
+/* SEARCH */
+.search-wrap {
+  background: var(--card2); border-radius: var(--radius-sm);
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 12px; margin-bottom: 14px;
+}
+.search-wrap svg { color: var(--text3); flex-shrink: 0; }
+.search-wrap input {
+  flex: 1; background: none; border: none; outline: none;
+  font-size: 15px; color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+}
+.search-wrap input::placeholder { color: var(--text3); }
+
+/* TASK LIST */
+.tasks-card { background: var(--card); border-radius: var(--radius); overflow: hidden; margin-bottom: 16px; }
+
+/* SWIPE WRAPPER */
+.swipe-wrap {
+  position: relative; overflow: hidden;
+  border-bottom: 1px solid var(--sep);
+}
+.swipe-wrap:last-child { border-bottom: none; }
+
+.swipe-bg {
+  position: absolute; inset: 0;
+  display: flex; align-items: stretch;
+  pointer-events: none;
+}
+.swipe-bg-left {
+  background: var(--green);
+  width: 80px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  color: white; font-size: 20px;
+  opacity: 0; transition: opacity .1s;
+}
+.swipe-bg-right {
+  background: var(--red);
+  width: 80px; flex-shrink: 0; margin-left: auto;
+  display: flex; align-items: center; justify-content: center;
+  color: white; font-size: 20px;
+  opacity: 0; transition: opacity .1s;
+}
+
+.task-row {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 12px 16px;
+  animation: rowIn .18s ease;
+  position: relative; background: var(--card);
+  transition: transform .05s linear;
+  will-change: transform;
+  touch-action: pan-y;
+  cursor: grab;
+}
+.task-row:active { cursor: grabbing; }
+@keyframes rowIn { from{opacity:0;transform:translateX(8px)} to{opacity:1;transform:translateX(0)} }
+
+.task-circle {
+  width: 22px; height: 22px; border-radius: 50%;
+  border: 2px solid var(--sep-strong, #c7c7cc);
+  flex-shrink: 0; cursor: pointer; margin-top: 1px;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .15s; background: transparent;
+}
+.task-circle.ph { border-color: var(--red); }
+.task-circle.pm { border-color: var(--orange); }
+.task-circle.pl { border-color: var(--blue); }
+.task-circle:active { transform: scale(.88); }
+.task-circle.checked { border-color: var(--green); background: var(--green); }
+.task-circle.checked::after {
+  content: ''; width: 5px; height: 9px;
+  border: 2px solid white; border-top: none; border-left: none;
+  transform: rotate(45deg) translateY(-1px);
+}
+
+.task-body { flex: 1; min-width: 0; padding-top: 1px; }
+.task-text { font-size: 17px; line-height: 1.35; word-break: break-word; }
+.task-row.done .task-text { text-decoration: line-through; color: var(--text2); }
+.task-meta { display: flex; gap: 6px; margin-top: 3px; flex-wrap: wrap; align-items: center; }
+
+.prio-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.pd-h { background: var(--red); }
+.pd-m { background: var(--orange); }
+.pd-l { background: var(--blue); }
+
+.meta-tag {
+  font-size: 12px; color: var(--text2);
+  background: var(--card2); border-radius: 5px;
+  padding: 1px 6px;
+}
+.meta-time { font-size: 12px; color: var(--blue); }
+.task-more {
+  background: none; border: none; color: var(--text3); cursor: pointer;
+  font-size: 18px; padding: 0 0 0 8px; line-height: 1; flex-shrink: 0;
+  margin-top: 1px;
+}
+.task-more:active { color: var(--text2); }
+
+/* SWIPE ACTIONS (shown via context menu) */
+.ctx-menu {
+  position: fixed; background: var(--card);
+  border-radius: var(--radius); overflow: hidden;
+  box-shadow: 0 8px 30px rgba(0,0,0,.18);
+  z-index: 200; min-width: 200px;
+  animation: ctxIn .15s ease;
+}
+@keyframes ctxIn { from{opacity:0;transform:scale(.9)} to{opacity:1;transform:scale(1)} }
+.ctx-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 13px 16px; border-bottom: 1px solid var(--sep);
+  cursor: pointer; font-size: 15px;
+  -webkit-user-select: none; user-select: none;
+}
+.ctx-item:last-child { border-bottom: none; }
+.ctx-item:active { background: var(--card2); }
+.ctx-item.danger { color: var(--red); }
+.ctx-icon { font-size: 16px; }
+
+/* EMPTY */
+.empty-state { text-align: center; padding: 50px 20px; color: var(--text2); }
+.empty-emoji { font-size: 40px; margin-bottom: 12px; }
+.empty-msg { font-size: 17px; font-weight: 600; margin-bottom: 6px; color: var(--text); }
+.empty-sub { font-size: 14px; }
+
+/* HISTORY */
+.hist-section { margin-bottom: 16px; }
+.hist-sec-title {
+  font-size: 13px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: .5px; color: var(--text2);
+  padding: 0 4px; margin-bottom: 8px;
+}
+.hist-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 16px; border-bottom: 1px solid var(--sep);
+}
+.hist-row:last-child { border-bottom: none; }
+.hist-check { color: var(--green); font-size: 16px; flex-shrink: 0; }
+.hist-no { color: var(--text3); font-size: 16px; flex-shrink: 0; }
+.hist-text { flex: 1; font-size: 15px; color: var(--text2); text-decoration: line-through; }
+.hist-text.pending { text-decoration: none; color: var(--text); }
+.hist-cat { font-size: 12px; color: var(--text3); }
+
+/* SCHEDULE */
+.sched-hour { margin-bottom: 2px; }
+.sched-row {
+  display: flex; align-items: stretch; min-height: 44px;
+}
+.sched-time {
+  width: 56px; flex-shrink: 0; font-size: 12px; color: var(--text2);
+  padding: 12px 10px 12px 0; text-align: right;
+  border-right: 1px solid var(--sep);
+}
+.sched-content { flex: 1; padding: 4px 0 4px 14px; display: flex; flex-direction: column; gap: 3px; position: relative; }
+.sched-content::before { content:''; position:absolute; left:0; top:50%; width:8px; height:1px; background:var(--sep); }
+.sched-task {
+  background: var(--card); border-radius: var(--radius-sm);
+  padding: 7px 12px; font-size: 15px;
+  display: flex; align-items: center; justify-content: space-between;
+  cursor: pointer; transition: opacity .12s;
+  border-left: 3px solid var(--blue);
+}
+.sched-task:active { opacity: .7; }
+.sched-task.sh { border-left-color: var(--red); }
+.sched-task.sm { border-left-color: var(--orange); }
+.sched-task.done-s { opacity: .5; }
+.sched-task.done-s span { text-decoration: line-through; }
+.sched-empty {
+  height: 28px; border-radius: var(--radius-sm);
+  border: 1.5px dashed var(--sep); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; color: transparent; transition: all .15s;
+}
+.sched-empty:active { color: var(--text2); background: var(--card2); }
+
+.unscheduled-section { margin-bottom: 20px; }
+.unsched-row {
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--card); border-radius: var(--radius-sm);
+  padding: 10px 14px; margin-bottom: 6px; font-size: 15px;
+}
+.unsched-add { color: var(--blue); font-size: 13px; cursor: pointer; flex-shrink: 0; }
+
+/* SYNC DOT */
+.sync-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--text3); transition: background .3s;
+  flex-shrink: 0;
+}
+.sync-dot.icloud { background: var(--green); }
+.sync-dot.err    { background: var(--red); }
+.sync-dot.idle   { background: var(--text3); }
+
+/* MODAL */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,.4);
+  z-index: 100; display: flex; align-items: flex-end;
+  animation: fadeIn .15s;
+}
+@keyframes fadeIn { from{opacity:0} to{opacity:1} }
+.modal-sheet {
+  width: 100%; background: var(--card);
+  border-radius: var(--radius) var(--radius) 0 0;
+  padding: 20px 20px calc(env(safe-area-inset-bottom)+20px);
+  animation: slideUp .25s cubic-bezier(.4,0,.2,1);
+  max-width: 700px; margin: 0 auto;
+}
+@keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
+.sheet-handle {
+  width: 36px; height: 4px; border-radius: 2px;
+  background: var(--sep); margin: 0 auto 20px;
+}
+.sheet-title { font-size: 17px; font-weight: 600; margin-bottom: 16px; text-align: center; }
+.sheet-input {
+  width: 100%; background: var(--card2); border: 1px solid var(--sep);
+  border-radius: var(--radius-sm); padding: 12px 14px;
+  font-size: 15px; color: var(--text); outline: none;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif; margin-bottom: 12px;
+}
+.sheet-input:focus { border-color: var(--blue); }
+.sheet-ta {
+  width: 100%; background: var(--card2); border: 1px solid var(--sep);
+  border-radius: var(--radius-sm); padding: 12px 14px;
+  font-size: 15px; color: var(--text); outline: none; resize: none;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif; margin-bottom: 12px;
+  min-height: 120px; line-height: 1.5;
+}
+.sheet-ta:focus { border-color: var(--blue); }
+.sheet-ta::placeholder { color: var(--text3); }
+.sheet-row { display: flex; gap: 10px; margin-bottom: 12px; }
+.sheet-sel {
+  flex: 1; background: var(--card2); border: 1px solid var(--sep);
+  border-radius: var(--radius-sm); padding: 10px 12px;
+  font-size: 14px; color: var(--text); outline: none;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+}
+.sheet-sel:focus { border-color: var(--blue); }
+.sheet-btn {
+  width: 100%; background: var(--blue); color: white; border: none;
+  border-radius: var(--radius); padding: 14px;
+  font-size: 17px; font-weight: 600; cursor: pointer;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  transition: opacity .12s; margin-bottom: 10px;
+}
+.sheet-btn:active { opacity: .8; }
+.sheet-btn-ghost {
+  width: 100%; background: var(--card2); color: var(--blue); border: none;
+  border-radius: var(--radius); padding: 14px;
+  font-size: 17px; font-weight: 500; cursor: pointer;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* SNACK */
+.snack {
+  position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
+  background: rgba(50,50,55,.9); backdrop-filter: blur(10px);
+  color: white; padding: 10px 18px; border-radius: 20px;
+  font-size: 14px; z-index: 300; white-space: nowrap;
+  animation: snackIn .2s ease;
+}
+@keyframes snackIn { from{opacity:0;transform:translateX(-50%) translateY(8px)} to{opacity:1;transform:translateX(-50%) translateY(0)} }
+
+@media (min-width:600px) {
+  .smart-grid { grid-template-columns: repeat(4,1fr); }
+  .add-bar { max-width: 700px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ PIN SCREEN ═════════════════════════════ -->
+<div id="pinScreen">
+  <div class="pin-header">
+    <div class="pin-icon">🔐</div>
+    <div class="pin-title">Напоминания</div>
+    <div class="pin-sub" id="pinSub">Введи PIN-код</div>
+  </div>
+  <div class="pin-dots" id="pinDots">
+    <div class="pdot" id="pd0"></div>
+    <div class="pdot" id="pd1"></div>
+    <div class="pdot" id="pd2"></div>
+    <div class="pdot" id="pd3"></div>
+  </div>
+  <div class="pin-pad">
+    <button class="pkey" onclick="pp('1')">1<span class="sub"></span></button>
+    <button class="pkey" onclick="pp('2')">2<span class="sub">ABC</span></button>
+    <button class="pkey" onclick="pp('3')">3<span class="sub">DEF</span></button>
+    <button class="pkey" onclick="pp('4')">4<span class="sub">GHI</span></button>
+    <button class="pkey" onclick="pp('5')">5<span class="sub">JKL</span></button>
+    <button class="pkey" onclick="pp('6')">6<span class="sub">MNO</span></button>
+    <button class="pkey" onclick="pp('7')">7<span class="sub">PQRS</span></button>
+    <button class="pkey" onclick="pp('8')">8<span class="sub">TUV</span></button>
+    <button class="pkey" onclick="pp('9')">9<span class="sub">WXYZ</span></button>
+    <button class="pkey ghost" id="pinChangeBtn" style="visibility:hidden" onclick="showPinSetup()">Изменить</button>
+    <button class="pkey" onclick="pp('0')">0</button>
+    <button class="pkey del-key" onclick="pdel()">⌫</button>
+  </div>
+  <div class="pin-err-msg" id="pinErr"></div>
+</div>
+
+<!-- ═══ SETUP SCREEN ═══════════════════════════ -->
+<div id="setup" style="display:none">
+  <div class="setup-inner">
+    <div class="setup-top">
+      <div class="setup-icon">☁️</div>
+      <h1>Настройка синхронизации</h1>
+      <p>Подключи Firebase ℔ данные будут доступны на Всех устройствах</p>
+    </div>
+
+    <div class="setup-card">
+      <div class="setup-row">
+        <div class="setup-num">1</div>
+        <div class="setup-row-body">
+          <div class="setup-row-title">Создай проект Firebase</div>
+          <div class="setup-row-desc"><a href="https://console.firebase.google.com" target="_blank">console.firebase.google.com</a> → «Добавить проект» → имя (например <em>mind-planner</em>) → создать.</div>
+        </div>
+      </div>
+      <div class="setup-row">
+        <div class="setup-num">2</div>
+        <div class="setup-row-body">
+          <div class="setup-row-title">Включи Realtime Database</div>
+          <div class="setup-row-desc">Build → Realtime Database → «Создать базу данных» → регион Europe → режим «Тест».</div>
+        </div>
+      </div>
+      <div class="setup-row">
+        <div class="setup-num">3</div>
+        <div class="setup-row-body">
+          <div class="setup-row-title">Скопируй конфиг</div>
+          <div class="setup-row-desc">Шестерёнка → Project settings → ⟨/⟩ Web → зарегистрируй → скопируй <em>firebaseConfig</em>.</div>
+        </div>
+      </div>
+      <div class="setup-row">
+        <div class="setup-num">4</div>
+        <div class="setup-row-body">
+          <div class="setup-row-title">Вставь данные</div>
+          <div class="setup-inputs">
+            <input class="ios-input" id="c_key"  placeholder="apiKey">
+            <input class="ios-input" id="c_auth" placeholder="authDomain">
+            <input class="ios-input" id="c_db"   placeholder="databaseURL (https://…)">
+            <input class="ios-input" id="c_proj" placeholder="projectId">
+            <input class="ios-input" id="c_app"  placeholder="appId">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button class="ios-btn" onclick="doSetup()">Подключить</button>
+    <div class="setup-note">Для постоянной работы вставь уданные Firebase прямо в HTML-файл в раздел firebaseConfig — ногда файл rabotait на всех устройствах без настройки.</div>
+  </div>
+</div>
+
+<!-- ═══ MAIN APP ════════════════════════════════ -->
+<div id="app">
+
+  <!-- HOME -->
+  <div id="homeView">
+    <!-- Smart cards -->
+    <div style="padding:16px 16px 0; max-width:700px; margin:0 auto; display:flex; align-items:center; justify-content:space-between;">
+      <div style="font-size:22px; font-weight:700; letter-spacing:-.3px;">Напоминания</div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div class="sync-dot idle" id="syncDot"></div>
+        <div style="font-size:12px;color:var(--text2)" id="hdate"></div>
+      </div>
+    </div>
+
+    <div class="smart-grid">
+      <div class="smart-card" onclick="openDetail('dump')">
+        <div class="sc-top">
+          <div class="sc-icon blue">📥</div>
+        </div>
+        <div class="sc-count" id="sc-dump">0</div>
+        <div class="sc-label">Копилка</div>
+      </div>
+      <div class="smart-card" onclick="openDetail('today')">
+        <div class="sc-top">
+          <div class="sc-icon blue">📋</div>
+        </div>
+        <div class="sc-count" id="sc-today">0</div>
+        <div class="sc-label">Сегодня</div>
+      </div>
+      <div class="smart-card" onclick="openDetail('today')">
+        <div class="sc-top">
+          <div class="sc-icon green">✓</div>
+        </div>
+        <div class="sc-count" id="sc-done">0</div>
+        <div class="sc-label">Готово</div>
+      </div>
+      <div class="smart-card" onclick="openDetail('today')">
+        <div class="sc-top">
+          <div class="sc-icon red">!</div>
+        </div>
+        <div class="sc-count" id="sc-high">0</div>
+        <div class="sc-label">Срочно</div>
+      </div>
+    </div>
+
+    <!-- Progress bar -->
+    <div style="max-width:700px;margin:14px auto 0;padding:0 16px;">
+      <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-bottom:5px;">
+        <span>Прогресс дня</span><span id="progPct">0%</span>
+      </div>
+      <div style="height:4px;background:var(--sep);border-radius:2px;overflow:hidden;">
+        <div id="progFill" style="height:100%;background:var(--green);border-radius:2px;transition:width .35s;width:0%"></div>
+      </div>
+    </div>
+
+    <!-- Lists -->
+    <div class="lists-section">
+      <div class="section-header">Мои списки</div>
+      <div class="lists-card">
+        <div class="list-row" onclick="openDetail('dump')">
+          <div class="list-row-icon li-dump">📥</div>
+          <div class="list-row-name">Копилка идей</div>
+          <div class="list-row-right">
+            <div class="list-row-count" id="lr-dump">0</div>
+            <div class="list-row-chevron">›</div>
+          </div>
+        </div>
+        <div class="list-row" onclick="openDetail('today')">
+          <div class="list-row-icon li-today">📋</div>
+          <div class="list-row-name">План дня</div>
+          <div class="list-row-right">
+            <div class="list-row-count" id="lr-today">0</div>
+            <div class="list-row-chevron">›</div>
+          </div>
+        </div>
+        <div class="list-row" onclick="openDetail('schedule')">
+          <div class="list-row-icon li-sched">🕐</div>
+          <div class="list-row-name">Расписание</div>
+          <div class="list-row-right">
+            <div class="list-row-count" id="lr-sched">0</div>
+            <div class="list-row-chevron">›</div>
+          </div>
+        </div>
+        <div class="list-row" onclick="openDetail('history')">
+          <div class="list-row-icon li-hist">✓</div>
+          <div class="list-row-name">История</div>
+          <div class="list-row-right">
+            <div class="list-row-count" id="lr-hist">0</div>
+            <div class="list-row-chevron">›</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DETAIL VIEW -->
+  <div id="detailView">
+    <div class="detail-nav">
+      <div class="detail-nav-inner">
+        <button class="back-btn" onclick="closeDetail()">
+          <svg viewBox="0 0 10 17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 1L1 8.5L9 16"/></svg>
+          Назад
+        </button>
+        <div style="display:flex;gap:12px;align-items:center">
+          <button id="detailAction" style="background:none;border:none;color:var(--blue);font-size:15px;cursor:pointer;font-family:-apple-system,sans-serif;" onclick="detailActionFn()"></button>
+        </div>
+      </div>
+    </div>
+    <div class="detail-title-bar">
+      <div class="detail-icon" id="detailIcon"></div>
+      <div class="detail-heading" id="detailHeading"></div>
+    </div>
+    <div class="detail-body" id="detailBody"></div>
+  </div>
+
+  <!-- ADD BAR -->
+  <div class="add-bar" id="addBar">
+    <div class="add-bar-inner">
+      <textarea class="add-input" id="addInput" placeholder="Новая задача..." rows="1"
+        oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"
+        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();addTask();}"></textarea>
+      <div class="add-row2">
+        <select class="add-sel" id="addPrio">
+          <option value="none">Без приоритета</option>
+          <option value="high">↑ Срочно</option>
+          <option value="medium">→ Важно</option>
+          <option value="low">↓ Потом</option>
+        </select>
+        <select class="add-sel" id="addCat">
+          <option value="">Без категории</option>
+          <option value="NCars">NCars</option>
+          <option value="NCase">NCase</option>
+          <option value="Proove">Proove</option>
+          <option value="Личное">Личное</option>
+        </select>
+        <button class="bulk-btn" onclick="showBulk()">Списком</button>
+      </div>
+    </div>
+    <button class="send-btn" onclick="addTask()">↑</button>
+  </div>
+</div>
+
+<!-- MODAL: SCHEDULE -->
+<div class="modal-overlay" id="mSched" style="display:none" onclick="if(event.target===this)closeMod('mSched')">
+  <div class="modal-sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Поставить в расписание</div>
+    <input class="sheet-input" id="mTxt" readonly>
+    <input class="sheet-input" id="mTime" type="time" value="09:00">
+    <button class="sheet-btn" onclick="confirmSched()">Запланировать</button>
+    <button class="sheet-btn-ghost" onclick="closeMod('mSched')">Отмена</button>
+  </div>
+</div>
+
+<!-- MODAL: BULK -->
+<div class="modal-overlay" id="mBulk" style="display:none" onclick="if(event.target===this)closeMod('mBulk')">
+  <div class="modal-sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Добавить списком</div>
+    <textarea class="sheet-ta" id="bTxt" placeholder="Каждая строка — отдельная задача&#10;Позвонить Ивану&#10;Проверить отчёт&#10;..."></textarea>
+    <div class="sheet-row">
+      <select class="sheet-sel" id="bPrio">
+        <option value="none">Без приоритета</option>
+        <option value="high">↑ Срочно</option>
+        <option value="medium">→ Важно</option>
+        <option value="low">↓ Потом</option>
+      </select>
+      <select class="sheet-sel" id="bCat">
+        <option value="">Без категории</option>
+        <option value="NCars">NCars</option>
+        <option value="NCase">NCase</option>
+        <option value="Proove">Proove</option>
+        <option value="Личное">Личное</option>
+      </select>
+    </div>
+    <button class="sheet-btn" onclick="confirmBulk()">Добавить</button>
+    <button class="sheet-btn-ghost" onclick="closeMod('mBulk')">Отмена</button>
+  </div>
+</div>
+
+<!-- MODAL: PIN SETUP -->
+<div class="modal-overlay" id="mPinSetup" style="display:none" onclick="if(event.target===this)closeMod('mPinSetup')">
+  <div class="modal-sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title" id="pinSetupTitle">Установить PIN</div>
+    <input class="sheet-input" id="pinNew" type="password" inputmode="numeric" maxlength="4" pattern="[0-9]*" placeholder="Новый PIN (4 цифры)">
+    <input class="sheet-input" id="pinConfirm" type="password" inputmode="numeric" maxlength="4" pattern="[0-9]*" placeholder="Повтори PIN">
+    <div style="font-size:13px;color:var(--red);min-height:18px;margin-bottom:12px" id="pinSetupErr"></div>
+    <button class="sheet-btn" onclick="confirmPinSetup()">Сохранить</button>
+    <button class="sheet-btn-ghost" onclick="closeMod('mPinSetup')">Отмена</button>
+  </div>
+</div>
+
+<!-- CONTEXT MENU -->
+<div id="ctxMenu" style="display:none"></div>
+
+<script>
+const HOURS=['07:00','08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00','22:00'];
+const CATS=['','NCars','NCase','Proove','Личное'];
+
+let S = { tasks:[], history:[], fltr:{dump:'',today:''} };
+let schedId = null;
+let currentView = null; // 'dump','today','schedule','history'
+let currentFilter = '';
+let pinBuffer = '';
+const DEFAULT_PIN = '1234';
+let pinUnlocked = false;
+
+// ── Firebase ─────────────────────────────────
+window._fbLoaded = function(data) {
+  if (data) { S.tasks=data.tasks||[]; S.history=data.history||[]; S.fltr=data.fltr||{dump:'',today:''}; }
+  if (!pinUnlocked) checkPin();
+  else render();
+};
+function save() { if(window._fbSave) window._fbSave({tasks:S.tasks,history:S.history,fltr:S.fltr}); }
+
+// ── Setup ─────────────────────────────────────
+function doSetup() {
+  const v=k=>document.getElementById(k).value.trim();
+  const cfg={apiKey:v('c_key'),authDomain:v('c_auth'),databaseURL:v('c_db'),projectId:v('c_proj'),appId:v('c_app')};
+  if(!cfg.apiKey||!cfg.databaseURL){alert('Нужны как минимум apiKey и databaseURL');return;}
+  localStorage.setItem('fbCfg',JSON.stringify(cfg));
+  alert('Готово! Вставь уданные Firebase прямо в HTML-файл (раздел firebaseConfig) для работы на всех устройствахбез настройки.');
+  location.reload();
+}
+
+// ── PIN ───────────────────────────────────────
+function getPin() { return localStorage.getItem('appPin')||DEFAULT_PIN; }
+
+function checkPin() {
+  const pinEl = document.getElementById('pinScreen');
+  // Show setup if firebase not configured
+  const fbOk = !(window._fbSave && window._fbSave.toString().includes('{}'));
+  pinEl.style.display = 'flex';
+  document.getElementById('pinChangeBtn').style.visibility = 'visible';
+}
+
+function pp(d) {
+  if (pinBuffer.length >= 4) return;
+  pinBuffer += d;
+  updatePinDots();
+  if (pinBuffer.length === 4) setTimeout(checkPinInput, 150);
+}
+function pdel() { pinBuffer = pinBuffer.slice(0,-1); updatePinDots(); document.getElementById('pinErr').textContent=''; }
+
+function updatePinDots(err) {
+  for (let i=0;i<4;i++) {
+    const d = document.getElementById('pd'+i);
+    d.className = 'pdot' + (i < pinBuffer.length ? (err?' err':' on') : '');
+  }
+}
+
+function checkPinInput() {
+  if (pinBuffer === getPin()) {
+    pinUnlocked = true;
+    document.getElementById('pinScreen').style.display = 'none';
+    showAppOrSetup();
+  } else {
+    updatePinDots(true);
+    document.getElementById('pinErr').textContent = 'Неверный PIN';
+    setTimeout(()=>{ pinBuffer=''; updatePinDots(); document.getElementById('pinErr').textContent=''; }, 900);
+  }
+}
+
+function showAppOrSetup() {
+  const needSetup = !window._fbSave || window._fbSave.toString().length < 20;
+  // If Firebase already loaded data, show app
+  document.getElementById('app').style.display = 'block';
+  render();
+}
+
+function showPinSetup() {
+  document.getElementById('pinNew').value='';
+  document.getElementById('pinConfirm').value='';
+  document.getElementById('pinSetupErr').textContent='';
+  document.getElementById('mPinSetup').style.display='flex';
+}
+function confirmPinSetup() {
+  const n=document.getElementById('pinNew').value;
+  const c=document.getElementById('pinConfirm').value;
+  if(!/^\d{4}$/.test(n)){document.getElementById('pinSetupErr').textContent='PIN должен быть 4 цифры';return;}
+  if(n!==c){document.getElementById('pinSetupErr').textContent='PIN не совпадает';return;}
+  localStorage.setItem('appPin',n);
+  closeMod('mPinSetup');
+  snack('✓ PIN изменён');
+}
+
+// ── Utils ─────────────────────────────────────
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,5);}
+function todayKey(){const d=new Date();return`${d.getFullYear()}-${p2(d.getMonth()+1)}-${p2(d.getDate())}`;}
+function p2(n){return String(n).padStart(2,'0');}
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function po(p){return{high:0,medium:1,low:2,none:3,'':3}[p]??3;}
+function pl(p){return{high:'Срочно',medium:'Важно',low:'Потом'}[p]||'';}
+function fd(d){if(!d)return'';const[,m,day]=d.split('-');return`${day}.${m}`;}
+function fdFull(d){if(!d)return'';const[y,m,day]=d.split('-');const M=['Янв','Фев','Мар','Апр','Май','Июн','Июл','Авг','Сен','Окт','Ноя','Дек'];return`${+day} ${M[+m-1]} ${y}`;}
+
+function snack(msg) {
+  document.querySelectorAll('.snack').forEach(e=>e.remove());
+  const e=document.createElement('div');e.className='snack';e.textContent=msg;
+  document.body.appendChild(e);setTimeout(()=>e.remove(),2000);
+}
+
+// ── Navigation ────────────────────────────────
+const DETAIL_CONFIG = {
+  dump:     { icon:'📥', bg:'rgba(0,122,255,.15)',  heading:'Копилка',      action:'Изменить PIN' },
+  today:    { icon:'📋', bg:'rgba(0,122,255,.15)',  heading:'План дня',     action:'Убрать выполн.' },
+  schedule: { icon:'🕐', bg:'rgba(255,149,0,.15)',  heading:'Расписание',   action:'' },
+  history:  { icon:'✓',  bg:'rgba(52,199,89,.15)',  heading:'История',      action:'Очистить' },
+};
+
+function openDetail(view) {
+  currentView = view;
+  currentFilter = '';
+  const cfg = DETAIL_CONFIG[view];
+  const iconEl = document.getElementById('detailIcon');
+  iconEl.textContent = cfg.icon;
+  iconEl.style.background = cfg.bg;
+  document.getElementById('detailHeading').textContent = cfg.heading;
+  const act = document.getElementById('detailAction');
+  act.textContent = cfg.action;
+  act.style.display = cfg.action ? '' : 'none';
+  document.getElementById('detailView').classList.add('open');
+  // Show add bar for dump and today
+  const bar = document.getElementById('addBar');
+  if (view==='dump'||view==='today') { bar.classList.add('visible'); }
+  else { bar.classList.remove('visible'); }
+  renderDetail();
+}
+
+function closeDetail() {
+  document.getElementById('detailView').classList.remove('open');
+  document.getElementById('addBar').classList.remove('visible');
+  currentView = null;
+  render();
+}
+
+function detailActionFn() {
+  if (currentView==='today') clearDone();
+  else if (currentView==='history') clearHist();
+  else if (currentView==='dump') showPinSetup();
+}
+
+// ── Add task ──────────────────────────────────
+function addTask() {
+  const inp=document.getElementById('addInput');
+  const txt=inp.value.trim(); if(!txt)return;
+  const prio=document.getElementById('addPrio').value;
+  const cat=document.getElementById('addCat').value;
+  const lines=txt.split('\n').map(s=>s.trim()).filter(Boolean);
+  lines.forEach(l=>S.tasks.push({
+    id:uid(),text:l,prio,cat,done:false,
+    date:todayKey(),scheduledTime:null,
+    inToday: currentView==='today'
+  }));
+  inp.value=''; inp.style.height='auto';
+  save(); renderDetail(); render();
+  snack(`+${lines.length}`);
+}
+
+function showBulk(){document.getElementById('mBulk').style.display='flex';}
+function confirmBulk(){
+  const txt=document.getElementById('bTxt').value.trim();if(!txt)return;
+  const prio=document.getElementById('bPrio').value,cat=document.getElementById('bCat').value;
+  const lines=txt.split('\n').map(s=>s.trim()).filter(Boolean);
+  lines.forEach(l=>S.tasks.push({id:uid(),text:l,prio,cat,done:false,date:todayKey(),scheduledTime:null,inToday:currentView==='today' }));
+  document.getElementById('bTxt').value='';
+  closeMod('mBulk');save();renderDetail();render();snack(`+${lines.length} задач`);
+}
+
+// ── Context menu ──────────────────────────────
+function showCtx(e, taskId) {
+  e.preventDefault(); e.stopPropagation();
+  closeCtx();
+  const t = S.tasks.find(t=>t.id===taskId); if(!t)return;
+  const isToday = t.inToday;
+  const menu = document.getElementById('ctxMenu');
+  menu.className = 'ctx-menu';
+  menu.innerHTML = `
+    ${!isToday?`<div class="ctx-item" onclick="toToday('${t.id}');closeCtx()"><span>Добавить в план дня</span><span class="ctx-icon">📋</pan></div>`:''}
+    ${isToday?`<div class="ctx-item" onclick="fromToday('${t.id}');closeCtx()"><span>Убрать из плана дня</span><span class="ctx-icon">↩</span></div>`:''}
+    ${isToday&&!t.scheduledTime?`<div class="ctx-item" onclick="openSched('${t.id}');closeCtx()"><span>Поставить в расписание</span><span class="ctx-icon">🕐</span></div>`:''}
+    <div class="ctx-item danger" onclick="del('${t.id}');closeCtx()"><span>Удалить</span><span class="ctx-icon">🗑</span></div>
+  `;
+  // Position near tap
+  const x = Math.min(e.clientX||e.touches?.[0]?.clientX||100, window.innerWidth-220);
+  const y = Math.min(e.clientY||e.touches?.[0]?.clientY||100, window.innerHeight-200);
+  menu.style.cssText = `display:block;left:${x}px;top:${y}px;`;
+  setTimeout(()=>document.addEventListener('click',closeCtx,{once:true}),50);
+}
+function closeCtx(){const m=document.getElementById('ctxMenu');if(m)m.style.display='none';}
+
+// ── Render Detail ─────────────────────────────
+function renderDetail() {
+  if (!currentView) return;
+  const body = document.getElementById('detailBody');
+  if (currentView==='dump')     body.innerHTML = renderDump();
+  if (currentView==='today')    body.innerHTML = renderToday();
+  if (currentView==='schedule') body.innerHTML = renderSchedule();
+  if (currentView==='history')  body.innerHTML = renderHistory();
+}
+
+function filterPills(panel, cats) {
+  return `<div class="filter-scroll" style="margin-bottom:12px">
+    ${['','NCars','NCase','Proove','Личное'].map(c=>`
+      <div class="fpill ${currentFilter===c?'active':''}" onclick="setFilter('${c}')">${c||'Все'}</div>
+    `).join('')}
+  </div>`;
+}
+
+function setFilter(val) {
+  currentFilter = val;
+  renderDetail();
+}
+
+function renderDump() {
+  const q = (document.querySelector('.search-wrap input')?.value||'').toLowerCase();
+  let ts = S.tasks.filter(t=>!t.inToday&&(!currentFilter||t.cat===currentFilter)&&(!q||t.text.toLowerCase().includes(q)));
+  ts.sort((a,b)=>po(a.prio)-po(b.prio));
+  if(!ts.length) return `
+    ${filterPills()}
+    <div class="empty-state"><div class="empty-emoji">🧠</div><div class="empty-msg">Копилка пуста</div><div class="empty-sub">Выгружай всё что в голове</div></div>`;
+  return `
+    ${filterPills()}
+    <div class="search-wrap"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="6" cy="6" r="5" stroke="currentColor" stroke-width="1.5"/><path d="M10 10l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      <input placeholder="Поиск..." oninput="renderDetail()" style="font-size:15px;background:none;border:none;outline:none;color:var(--text);flex:1;font-family:-apple-system,sans-serif;">
+    </div>
+    <div class="tasks-card">${ts.map(t=>taskRow(t)).join('')}</div>`;
+}
+
+function renderToday() {
+  let ts = S.tasks.filter(t=>t.inToday&&(!currentFilter||t.cat===currentFilter));
+  ts.sort((a,b)=>{if(a.done!==b.done)return a.done?1:-1;return po(a.prio)-po(b.prio);});
+  if(!ts.length) return `
+    ${filterPills()}
+    <div class="empty-state"><div class="empty-emoji">📋</div><div class="empty-msg">Список пуст</div><div class="empty-sub">Добавь задачи из копилки через долгое нажатие</div></div>`;
+  return `${filterPills()}<div class="tasks-card">${ts.map(t=>taskRow(t)).join('')}</div>`;
+}
+
+function taskRow(t) {
+  const circleClass = `task-circle${t.prio==='high'?' ph':t.prio==='medium'?' pm':t.prio==='low'?' pl':''}${t.done?' checked':''}`;
+  return `
+    <div class="swipe-wrap" data-id="${t.id}">
+      <div class="swipe-bg">
+        <div class="swipe-bg-left">✓</div>
+        <div class="swipe-bg-right">🗑</div>
+      </div>
+      <div class="task-row ${t.done?'done':''}"
+        oncontextmenu="showCtx(event,'${t.id}')"
+        ontouchstart="swipeStart(event,this)"
+        ontouchmove="swipeMove(event,this)"
+        ontouchend="swipeEnd(event,this,'${t.id}')">
+        <div class="${circleClass}" onclick="tog('${t.id}')"></div>
+        <div class="task-body">
+          <div class="task-text">${esc(t.text)}</div>
+          <div class="task-meta">
+            ${t.prio&&t.prio!=='none'?`<div class="prio-dot pd-${t.prio[0]}"></div>`:''}
+            ${t.cat?`<span class="meta-tag">${t.cat}</span>`:''}
+            ${t.scheduledTime?`<span class="meta-time">◷ ${t.scheduledTime}</span>`:''}
+            ${!t.inToday?`<span class="meta-tag" style="color:var(--blue);cursor:pointer" onclick="toToday('${t.id}')">+ В план дня</span>`:''}
+          </div>
+        </div>
+        <button class="task-more" onclick="showCtx(event,'${t.id}')">···</button>
+      </div>
+    </div>`;
+}
+
+function renderSchedule() {
+  const un = S.tasks.filter(t=>t.inToday&&!t.scheduledTime);
+  let html = '';
+  if(un.length) {
+    html += `<div class="unscheduled-section"><div class="hist-sec-title" style="margin-bottom:8px">Нераспределённые</div>
+      ${un.map(t=>`<div class="unsched-row">
+        <span style="font-size:15px">${esc(t.text)}</span>
+        <span class="unsched-add" onclick="openSched('${t.id}')">Поставить +</span>
+      </div>`).join('')}
+    </div>`;
+  }
+  html += `<div class="hist-sec-title" style="margin-bottom:8px">Расписание</div>`;
+  html += HOURS.map(h=>{
+    const st=S.tasks.filter(t=>t.scheduledTime===h&&t.inToday);
+    return `<div class="sched-row">
+      <div class="sched-time">${h}</div>
+      <div class="sched-content">
+        ${st.map(t=>`<div class="sched-task ${t.done?'done-s':t.prio==='high'?'sh':t.prio==='medium'?'sm':''}" onclick="tog('${t.id}')">
+          <span>${esc(t.text)}</span>
+          <div style="display:flex;gap:6px;align-items:center">
+            ${t.done?`<span style="color:var(--green);font-size:13px">✓</span>`:''}
+            <button style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;padding:0" onclick="event.stopPropagation();unsched('${t.id}')">×</button>
+          </div>
+        </div>`).join('')}
+        ${!st.length?`<div class="sched-empty" onclick="openSchedH('${h}')">+ задача</div>`:''}
+      </div>
+    </div>`;
+  }).join('');
+  return html;
+}
+
+function renderHistory() {
+  const byD={};
+  S.tasks.forEach(t=>{if(!byD[t.date])byD[t.date]=[];byD[t.date].push(t);});
+  S.history.forEach(h=>{if(!byD[h.date])byD[h.date]=h.tasks;});
+  const dates=Object.keys(byD).sort((a,b)=>b.localeCompare(a));
+  if(!dates.length) return `<div class="empty-state"><div class="empty-emoji">📁</div><div class="empty-msg">История пуста</div></div>`;
+  return dates.map(d=>{
+    const ts=byD[d],done=ts.filter(t=>t.done).length,pct=ts.length?Math.round(done/ts.length*100):0;
+    return `<div class="hist-section">
+      <div class="hist-sec-title">${fdFull(d)} · ${pct}%</div>
+      <div class="tasks-card">${ts.map(t=>`
+        <div class="hist-row">
+          <div class="${t.done?'hist-check':'hist-no'}">${t.done?'✓':'○'}</div>
+          <div class="hist-text ${t.done?'':'pending'}">${esc(t.text)}</div>
+          ${t.cat?`<span class="hist-cat">${t.cat}</span>`:''}
+        </div>`).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── Actions ───────────────────────────────────
+function tog(id){
+  const t=S.tasks.find(t=>t.id===id);if(!t)return;
+  t.done=!t.done;save();renderDetail();render();
+  if(t.done)snack('✓');
+}
+function toToday(id){const t=S.tasks.find(t=>t.id===id);if(!t)return;t.inToday=true;save();renderDetail();render();snack('В план дня');}
+function fromToday(id){const t=S.tasks.find(t=>t.id===id);if(!t)return;t.inToday=false;t.scheduledTime=null;save();renderDetail();render();}
+function del(id){S.tasks=S.tasks.filter(t=>t.id!==id);save();renderDetail();render();}
+function unsched(id){const t=S.tasks.find(t=>t.id===id);if(t){t.scheduledTime=null;save();renderDetail();}}
+function clearDone(){
+  const done=S.tasks.filter(t=>t.inToday&&t.done);
+  if(!done.length){snack('Нет выполненных');return;}
+  const k=todayKey();let he=S.history.find(h=>h.date===k);
+  if(!he){he={date:k,tasks:[]};S.history.push(he);}
+  done.forEach(t=>{if(!he.tasks.find(h=>h.id===t.id))he.tasks.push({...t});});
+  S.tasks=S.tasks.filter(t=>!(t.inToday&&t.done));
+  save();renderDetail();render();snack(`${done.length} → история`);
+}
+function clearHist(){if(!confirm('Очистить всю историю?'))return;S.history=[];save();renderDetail();}
+
+// ── Schedule modal ────────────────────────────
+function openSched(id){
+  schedId=id;const t=S.tasks.find(t=>t.id===id);if(!t)return;
+  document.getElementById('mTxt').value=t.text;
+  document.getElementById('mTime').value=t.scheduledTime||'09:00';
+  document.getElementById('mSched').style.display='flex';
+}
+function openSchedH(h){
+  const t=S.tasks.find(t=>t.inToday&&!t.scheduledTime);
+  if(!t){snack('Нет нераспланированных задач');return;}
+  schedId=t.id;document.getElementById('mTxt').value=t.text;
+  document.getElementById('mTime').value=h;document.getElementById('mSched').style.display='flex';
+}
+function confirmSched(){
+  const time=document.getElementById('mTime').value;
+  const t=S.tasks.find(t=>t.id===schedId);if(!t)return;
+  t.scheduledTime=time;t.inToday=true;
+  closeMod('mSched');save();renderDetail();render();snack(`◷ ${time}`);
+}
+function closeMod(id){document.getElementById(id).style.display='none';}
+
+// ── Swipe to complete / delete ────────────────
+const SWIPE_THRESHOLD = 72;  // px to trigger action
+const SWIPE_CANCEL    = 8;   // px vertical drift = cancel swipe
+
+let sw = { startX:0, startY:0, dx:0, active:false, locked:false };
+
+function swipeStart(e, row) {
+  const t = e.touches[0];
+  sw = { startX:t.clientX, startY:t.clientY, dx:0, active:true, locked:false };
+  row.style.transition = 'none';
+}
+
+function swipeMove(e, row) {
+  if (!sw.active) return;
+  const t = e.touches[0];
+  const dx = t.clientX - sw.startX;
+  const dy = Math.abs(t.clientY - sw.startY);
+
+  // If significant vertical scroll — cancel swipe
+  if (!sw.locked && dy > SWIPE_CANCEL && Math.abs(dx) < SWIPE_CANCEL) {
+    sw.active = false;
+    row.style.transform = '';
+    return;
+  }
+  sw.locked = true;
+  sw.dx = dx;
+
+  // Clamp: don't let swipe go too far
+  const clamped = Math.max(-120, Math.min(120, dx));
+  row.style.transform = `translateX(${clamped}px)`;
+
+  // Show background indicators
+  const wrap = row.parentElement;
+  const bgL  = wrap.querySelector('.swipe-bg-left');
+  const bgR  = wrap.querySelector('.swipe-bg-right');
+  if (dx > 0) {
+    bgL.style.opacity = Math.min(1, dx / SWIPE_THRESHOLD);
+    bgR.style.opacity = 0;
+  } else {
+    bgR.style.opacity = Math.min(1, Math.abs(dx) / SWIPE_THRESHOLD);
+    bgL.style.opacity = 0;
+  }
+  if (sw.locked) e.preventDefault();
+}
+
+function swipeEnd(e, row, id) {
+  if (!sw.active) return;
+  sw.active = false;
+  row.style.transition = 'transform .25s cubic-bezier(.4,0,.2,1)';
+
+  const wrap = row.parentElement;
+  const bgL  = wrap.querySelector('.swipe-bg-left');
+  const bgR  = wrap.querySelector('.swipe-bg-right');
+
+  if (sw.dx > SWIPE_THRESHOLD) {
+    // Swipe right → complete
+    row.style.transform = `translateX(100%)`;
+    row.style.opacity = '0';
+    setTimeout(() => { tog(id); }, 220);
+  } else if (sw.dx < -SWIPE_THRESHOLD) {
+    // Swipe left → delete
+    row.style.transform = `translateX(-100%)`;
+    row.style.opacity = '0';
+    setTimeout(() => { del(id); }, 220);
+  } else {
+    // Snap back
+    row.style.transform = '';
+    bgL.style.opacity = 0;
+    bgR.style.opacity = 0;
+  }
+}
+
+// Long press still works for context menu on desktop
+let lpTimer;
+function startLongPress(e,id){lpTimer=setTimeout(()=>showCtx(e,id),500);}
+function cancelLongPress(){clearTimeout(lpTimer);}
+
+// ── Global render ─────────────────────────────
+function render(){
+  const td=S.tasks.filter(t=>t.inToday);
+  const done=td.filter(t=>t.done).length,total=td.length;
+  const pct=total?Math.round(done/total*100):0;
+  const dump=S.tasks.filter(t=>!t.inToday).length;
+  const high=S.tasks.filter(t=>t.prio==='high'&&!t.done).length;
+  const sched=S.tasks.filter(t=>t.scheduledTime&&t.inToday).length;
+  const hist=S.history.reduce((a,h)=>a+h.tasks.length,0)+S.tasks.filter(t=>t.done).length;
+
+  document.getElementById('sc-dump').textContent=dump;
+  document.getElementById('sc-today').textContent=total;
+  document.getElementById('sc-done').textContent=done;
+  document.getElementById('sc-high').textContent=high;
+  document.getElementById('lr-dump').textContent=dump;
+  document.getElementById('lr-today').textContent=total-done||'';
+  document.getElementById('lr-sched').textContent=sched||'';
+  document.getElementById('lr-hist').textContent=hist||'';
+  document.getElementById('progFill').style.width=pct+'%';
+  document.getElementById('progPct').textContent=pct+'%';
+  document.getElementById('hdate').textContent=new Date().toLocaleDateString('ru-RU',{weekday:'short',day:'numeric',month:'short'});
+}
+
+// ── Init ──────────────────────────────────────
+window.addEventListener('DOMContentLoaded',()=>{
+  // If Firebase already loaded, _fbLoaded handles it.
+  // Fallback: if not configured, still show pin then setup.
+  setTimeout(()=>{
+    if(document.getElementById('pinScreen').style.display==='none') return;
+    // already handled by _fbLoaded
+  },2000);
+});
+</script>
+</body>
+</html>
