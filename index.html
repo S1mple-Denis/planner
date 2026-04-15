@@ -258,6 +258,17 @@ body {
 }
 .list-row:last-child { border-bottom: none; }
 .list-row:active { background: var(--card2); }
+.list-expand-wrap { border-bottom: 1px solid var(--sep); }
+.list-expand-wrap:last-child { border-bottom: none; }
+.list-expand-wrap .list-row { border-bottom: none; }
+.list-expand-content { display: none; padding: 0 12px 10px 58px; }
+.list-expand-content.open { display: block; }
+.le-item { font-size: 15px; color: var(--text1); padding: 4px 0; display: flex; align-items: center; gap: 8px; }
+.le-item.done-t { color: var(--text3); text-decoration: line-through; }
+.le-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--sep); flex-shrink: 0; }
+.le-more { font-size: 13px; color: var(--blue); padding: 4px 0 2px; cursor: pointer; }
+.list-row-chevron { color: var(--text3); font-size: 18px; transition: transform .2s; line-height: 1; }
+.list-row-chevron.open { transform: rotate(90deg); }
 .list-row-icon {
   width: 30px; height: 30px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
@@ -548,6 +559,10 @@ body {
 .sched-empty:active { color: var(--text2); background: var(--card2); }
 
 .unscheduled-section { margin-bottom: 20px; }
+.sched-date-bar { display:flex; align-items:center; justify-content:space-between; padding:10px 16px 14px; }
+.sched-date-btn { background:none; border:none; font-size:22px; color:var(--text2); cursor:pointer; padding:4px 8px; border-radius:8px; }
+.sched-date-btn:active { background:var(--card2); }
+.sched-date-label { font-size:16px; font-weight:600; cursor:pointer; color:var(--text1); }
 .unsched-row {
   display: flex; align-items: center; justify-content: space-between;
   background: var(--card); border-radius: var(--radius-sm);
@@ -782,37 +797,49 @@ body {
     <div class="lists-section">
       <div class="section-header">Мои списки</div>
       <div class="lists-card">
-        <div class="list-row" onclick="openDetail('dump')">
-          <div class="list-row-icon li-dump">📥</div>
-          <div class="list-row-name">Копилка идей</div>
-          <div class="list-row-right">
-            <div class="list-row-count" id="lr-dump">0</div>
-            <div class="list-row-chevron">›</div>
+        <div class="list-expand-wrap">
+          <div class="list-row" onclick="toggleListExpand('dump')">
+            <div class="list-row-icon li-dump">📥</div>
+            <div class="list-row-name">Копилка идей</div>
+            <div class="list-row-right">
+              <div class="list-row-count" id="lr-dump">0</div>
+              <div class="list-row-chevron" id="chv-dump">›</div>
+            </div>
           </div>
+          <div class="list-expand-content" id="exp-dump"></div>
         </div>
-        <div class="list-row" onclick="openDetail('today')">
-          <div class="list-row-icon li-today">📋</div>
-          <div class="list-row-name">План дня</div>
-          <div class="list-row-right">
-            <div class="list-row-count" id="lr-today">0</div>
-            <div class="list-row-chevron">›</div>
+        <div class="list-expand-wrap">
+          <div class="list-row" onclick="toggleListExpand('today')">
+            <div class="list-row-icon li-today">📋</div>
+            <div class="list-row-name">План дня</div>
+            <div class="list-row-right">
+              <div class="list-row-count" id="lr-today">0</div>
+              <div class="list-row-chevron" id="chv-today">›</div>
+            </div>
           </div>
+          <div class="list-expand-content" id="exp-today"></div>
         </div>
-        <div class="list-row" onclick="openDetail('schedule')">
-          <div class="list-row-icon li-sched">🕐</div>
-          <div class="list-row-name">Расписание</div>
-          <div class="list-row-right">
-            <div class="list-row-count" id="lr-sched">0</div>
-            <div class="list-row-chevron">›</div>
+        <div class="list-expand-wrap">
+          <div class="list-row" onclick="toggleListExpand('schedule')">
+            <div class="list-row-icon li-sched">🕐</div>
+            <div class="list-row-name">Расписание</div>
+            <div class="list-row-right">
+              <div class="list-row-count" id="lr-sched">0</div>
+              <div class="list-row-chevron" id="chv-schedule">›</div>
+            </div>
           </div>
+          <div class="list-expand-content" id="exp-schedule"></div>
         </div>
-        <div class="list-row" onclick="openDetail('history')">
-          <div class="list-row-icon li-hist">✓</div>
-          <div class="list-row-name">История</div>
-          <div class="list-row-right">
-            <div class="list-row-count" id="lr-hist">0</div>
-            <div class="list-row-chevron">›</div>
+        <div class="list-expand-wrap">
+          <div class="list-row" onclick="toggleListExpand('history')">
+            <div class="list-row-icon li-hist">✓</div>
+            <div class="list-row-name">История</div>
+            <div class="list-row-right">
+              <div class="list-row-count" id="lr-hist">0</div>
+              <div class="list-row-chevron" id="chv-history">›</div>
+            </div>
           </div>
+          <div class="list-expand-content" id="exp-history"></div>
         </div>
       </div>
     </div>
@@ -871,6 +898,7 @@ body {
     <div class="sheet-handle"></div>
     <div class="sheet-title">Поставить в расписание</div>
     <input class="sheet-input" id="mTxt" readonly>
+    <input class="sheet-input" id="mDate" type="date">
     <input class="sheet-input" id="mTime" type="time" value="09:00">
     <button class="sheet-btn" onclick="confirmSched()">Запланировать</button>
     <button class="sheet-btn-ghost" onclick="closeMod('mSched')">Отмена</button>
@@ -927,6 +955,8 @@ let S = { tasks:[], history:[], fltr:{dump:'',today:''} };
 let schedId = null;
 let currentView = null; // 'dump','today','schedule','history'
 let currentFilter = '';
+let currentSchedDate = todayKey();
+let listExpanded = {};
 let pinBuffer = '';
 const DEFAULT_PIN = '1234';
 let pinUnlocked = false;
@@ -1191,9 +1221,37 @@ function taskRow(t) {
     </div>`;
 }
 
+function schedDateOffset(delta){
+  const d=new Date(currentSchedDate+'T00:00:00');
+  d.setDate(d.getDate()+delta);
+  currentSchedDate=d.toISOString().slice(0,10);
+  renderDetail();
+}
+function fdShort(d){
+  if(!d)return'';
+  const dt=new Date(d+'T00:00:00');
+  const today=new Date();today.setHours(0,0,0,0);
+  const diff=Math.round((dt-today)/86400000);
+  if(diff===0)return'Сегодня';
+  if(diff===1)return'Завтра';
+  if(diff===-1)return'Вчера';
+  return dt.toLocaleDateString('ru-RU',{day:'numeric',month:'short'});
+}
 function renderSchedule() {
-  const un = S.tasks.filter(t=>t.inToday&&!t.scheduledTime);
-  let html = '';
+  const d = currentSchedDate;
+  const isToday = d === todayKey();
+  // Tasks scheduled for this specific date
+  const scheduled = S.tasks.filter(t=>t.scheduledDate===d && t.scheduledTime);
+  // Unscheduled: today's tasks without time + tasks marked for this date without time
+  const un = isToday
+    ? S.tasks.filter(t=>t.inToday&&!t.scheduledTime&&!t.scheduledDate)
+    : S.tasks.filter(t=>t.scheduledDate===d&&!t.scheduledTime);
+  let html = `<div class="sched-date-bar">
+    <button class="sched-date-btn" onclick="schedDateOffset(-1)">‹</button>
+    <span class="sched-date-label" onclick="document.getElementById('schedDatePick').click()">${fdShort(d)}</span>
+    <button class="sched-date-btn" onclick="schedDateOffset(1)">›</button>
+  </div>
+  <input type="date" id="schedDatePick" value="${d}" style="position:absolute;opacity:0;pointer-events:none" onchange="currentSchedDate=this.value;renderDetail()">`;
   if(un.length) {
     html += `<div class="unscheduled-section"><div class="hist-sec-title" style="margin-bottom:8px">Нераспределённые</div>
       ${un.map(t=>`<div class="unsched-row">
@@ -1204,7 +1262,7 @@ function renderSchedule() {
   }
   html += `<div class="hist-sec-title" style="margin-bottom:8px">Расписание</div>`;
   html += HOURS.map(h=>{
-    const st=S.tasks.filter(t=>t.scheduledTime===h&&t.inToday);
+    const st=scheduled.filter(t=>t.scheduledTime===h);
     return `<div class="sched-row">
       <div class="sched-time">${h}</div>
       <div class="sched-content">
@@ -1268,20 +1326,26 @@ function clearHist(){if(!confirm('Очистить всю историю?'))retu
 function openSched(id){
   schedId=id;const t=S.tasks.find(t=>t.id===id);if(!t)return;
   document.getElementById('mTxt').value=t.text;
+  document.getElementById('mDate').value=t.scheduledDate||currentSchedDate||todayKey();
   document.getElementById('mTime').value=t.scheduledTime||'09:00';
   document.getElementById('mSched').style.display='flex';
 }
 function openSchedH(h){
-  const t=S.tasks.find(t=>t.inToday&&!t.scheduledTime);
+  const t=S.tasks.find(t=>t.scheduledDate===currentSchedDate&&!t.scheduledTime)||
+           S.tasks.find(t=>t.inToday&&!t.scheduledTime);
   if(!t){snack('Нет нераспланированных задач');return;}
   schedId=t.id;document.getElementById('mTxt').value=t.text;
+  document.getElementById('mDate').value=currentSchedDate||todayKey();
   document.getElementById('mTime').value=h;document.getElementById('mSched').style.display='flex';
 }
 function confirmSched(){
   const time=document.getElementById('mTime').value;
+  const date=document.getElementById('mDate').value||todayKey();
   const t=S.tasks.find(t=>t.id===schedId);if(!t)return;
-  t.scheduledTime=time;t.inToday=true;
-  closeMod('mSched');save();renderDetail();render();snack(`◷ ${time}`);
+  t.scheduledTime=time;
+  t.scheduledDate=date;
+  if(date===todayKey()) t.inToday=true;
+  closeMod('mSched');save();renderDetail();render();snack(`◷ ${time} · ${fdShort(date)}`);
 }
 function closeMod(id){document.getElementById(id).style.display='none';}
 
@@ -1362,6 +1426,38 @@ let lpTimer;
 function startLongPress(e,id){lpTimer=setTimeout(()=>showCtx(e,id),500);}
 function cancelLongPress(){clearTimeout(lpTimer);}
 
+// ── Expandable home lists ─────────────────────
+function toggleListExpand(key){
+  listExpanded[key]=!listExpanded[key];
+  renderHomeExpanded();
+}
+function renderHomeExpanded(){
+  const lists={
+    dump:  { tasks: S.tasks.filter(t=>!t.inToday), label:'Открыть все' },
+    today: { tasks: S.tasks.filter(t=>t.inToday), label:'Открыть все' },
+    schedule: { tasks: S.tasks.filter(t=>t.scheduledTime&&(t.inToday||t.scheduledDate)), label:'Открыть расписание' },
+    history: { tasks: S.history.flatMap(h=>h.tasks).slice(-20).reverse(), label:'Открыть историю' }
+  };
+  Object.keys(lists).forEach(key=>{
+    const el=document.getElementById('exp-'+key);
+    const chv=document.getElementById('chv-'+key);
+    if(!el||!chv)return;
+    const open=!!listExpanded[key];
+    chv.className='list-row-chevron'+(open?' open':'');
+    el.className='list-expand-content'+(open?' open':'');
+    if(!open){el.innerHTML='';return;}
+    const {tasks,label}=lists[key];
+    const MAX=5;
+    const show=tasks.slice(0,MAX);
+    el.innerHTML=show.map(t=>`<div class="le-item ${t.done?'done-t':''}">
+      <div class="le-dot" style="${t.prio==='high'?'background:var(--red)':t.prio==='medium'?'background:var(--orange)':''}"></div>
+      <span>${esc(t.text)}${key==='schedule'&&t.scheduledTime?` <span style="color:var(--text3);font-size:13px">◷${t.scheduledTime}</span>`:''}</span>
+    </div>`).join('')+
+    (tasks.length>MAX?`<div class="le-more" onclick="openDetail('${key==='history'?'history':key==='schedule'?'schedule':key}')">${label} (${tasks.length}) ›</div>`:'')
+    +(tasks.length===0?`<div style="font-size:14px;color:var(--text3);padding:4px 0">Пусто</div>`:'');
+  });
+}
+
 // ── Global render ─────────────────────────────
 function render(){
   const td=S.tasks.filter(t=>t.inToday);
@@ -1369,20 +1465,21 @@ function render(){
   const pct=total?Math.round(done/total*100):0;
   const dump=S.tasks.filter(t=>!t.inToday).length;
   const high=S.tasks.filter(t=>t.prio==='high'&&!t.done).length;
-  const sched=S.tasks.filter(t=>t.scheduledTime&&t.inToday).length;
+  const sched=S.tasks.filter(t=>t.scheduledTime&&(t.inToday||t.scheduledDate)).length;
   const hist=S.history.reduce((a,h)=>a+h.tasks.length,0)+S.tasks.filter(t=>t.done).length;
 
   document.getElementById('sc-dump').textContent=dump;
   document.getElementById('sc-today').textContent=total;
   document.getElementById('sc-done').textContent=done;
   document.getElementById('sc-high').textContent=high;
-  document.getElementById('lr-dump').textContent=dump;
+  document.getElementById('lr-dump').textContent=dump||'';
   document.getElementById('lr-today').textContent=total-done||'';
   document.getElementById('lr-sched').textContent=sched||'';
   document.getElementById('lr-hist').textContent=hist||'';
   document.getElementById('progFill').style.width=pct+'%';
   document.getElementById('progPct').textContent=pct+'%';
   document.getElementById('hdate').textContent=new Date().toLocaleDateString('ru-RU',{weekday:'short',day:'numeric',month:'short'});
+  renderHomeExpanded();
 }
 
 // ── Init ──────────────────────────────────────
