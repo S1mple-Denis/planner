@@ -531,6 +531,30 @@ body {
 .hist-text.pending { text-decoration: none; color: var(--text); }
 .hist-cat { font-size: 12px; color: var(--text3); }
 
+/* ── MATRIX ──────────────────────────────────── */
+.matrix-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:4px 0 16px; }
+.matrix-q { border-radius:14px; padding:12px; min-height:140px; }
+.matrix-q-header { display:flex; align-items:center; gap:6px; margin-bottom:8px; }
+.matrix-q-icon { font-size:18px; }
+.matrix-q-title { font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:.3px; }
+.matrix-q-sub { font-size:11px; color:var(--text3); margin-top:1px; }
+.matrix-q1 { background:rgba(255,59,48,.1); }
+.matrix-q1 .matrix-q-title { color:#c0392b; }
+.matrix-q2 { background:rgba(52,199,89,.1); }
+.matrix-q2 .matrix-q-title { color:#27ae60; }
+.matrix-q3 { background:rgba(255,149,0,.1); }
+.matrix-q3 .matrix-q-title { color:#e67e22; }
+.matrix-q4 { background:rgba(142,142,147,.1); }
+.matrix-q4 .matrix-q-title { color:var(--text3); }
+.matrix-task { font-size:14px; color:var(--text1); padding:4px 0; border-bottom:1px solid rgba(0,0,0,.06); display:flex; align-items:center; justify-content:space-between; gap:6px; }
+.matrix-task:last-child { border-bottom:none; }
+.matrix-task-text { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.matrix-task-del { background:none; border:none; color:var(--text3); cursor:pointer; font-size:15px; padding:0 2px; flex-shrink:0; }
+.matrix-add { font-size:13px; color:var(--blue); cursor:pointer; margin-top:6px; display:inline-block; }
+.hist-group-toggle { display:flex; gap:6px; margin-bottom:14px; }
+.hist-gtab { padding:6px 14px; border-radius:16px; border:none; font-size:14px; font-weight:500; cursor:pointer; background:var(--card2); color:var(--text2); }
+.hist-gtab.active { background:var(--blue); color:#fff; }
+
 /* SCHEDULE */
 .sched-hour { margin-bottom: 2px; }
 .sched-row {
@@ -882,6 +906,16 @@ body {
           </div>
           <div class="list-expand-content" id="exp-history"></div>
         </div>
+        <div class="list-expand-wrap">
+          <div class="list-row" onclick="openDetail('matrix')" style="border-top:1px solid var(--sep)">
+            <div class="list-row-icon" style="background:rgba(88,86,214,.15)">⊞</div>
+            <div class="list-row-name">Матрица Эйзенхауэра</div>
+            <div class="list-row-right">
+              <div class="list-row-count" id="lr-matrix"></div>
+              <div class="list-row-chevron">›</div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -1004,6 +1038,7 @@ let currentView = null; // 'dump','today','schedule','history'
 let currentFilter = '';
 let currentSchedDate = todayKey();
 let listExpanded = {};
+let histGroup = 'date';
 let pinBuffer = '';
 const DEFAULT_PIN = '1234';
 let pinUnlocked = false;
@@ -1115,10 +1150,11 @@ function snack(msg) {
 
 // ── Navigation ────────────────────────────────
 const DETAIL_CONFIG = {
-  dump:     { icon:'📥', bg:'rgba(0,122,255,.15)',  heading:'Копилка',      action:'Изменить PIN' },
-  today:    { icon:'📋', bg:'rgba(0,122,255,.15)',  heading:'План дня',     action:'Убрать выполн.' },
-  schedule: { icon:'🕐', bg:'rgba(255,149,0,.15)',  heading:'Расписание',   action:'' },
-  history:  { icon:'✓',  bg:'rgba(52,199,89,.15)',  heading:'История',      action:'Очистить' },
+  dump:     { icon:'📥', bg:'rgba(0,122,255,.15)',  heading:'Копилка',               action:'Изменить PIN' },
+  today:    { icon:'📋', bg:'rgba(0,122,255,.15)',  heading:'План дня',              action:'Убрать выполн.' },
+  schedule: { icon:'🕐', bg:'rgba(255,149,0,.15)',  heading:'Расписание',            action:'' },
+  history:  { icon:'✓',  bg:'rgba(52,199,89,.15)',  heading:'История',               action:'Очистить' },
+  matrix:   { icon:'⊞',  bg:'rgba(88,86,214,.15)', heading:'Матрица Эйзенхауэра',  action:'' },
 };
 
 function openDetail(view) {
@@ -1211,6 +1247,7 @@ function showCtx(e, taskId) {
     ${!isToday?`<div class="ctx-item" onclick="toToday('${t.id}');closeCtx()"><span>Добавить в план дня</span><span class="ctx-icon">📋</pan></div>`:''}
     ${isToday?`<div class="ctx-item" onclick="fromToday('${t.id}');closeCtx()"><span>Убрать из плана дня</span><span class="ctx-icon">↩</span></div>`:''}
     ${isToday&&!t.scheduledTime?`<div class="ctx-item" onclick="openSched('${t.id}');closeCtx()"><span>Поставить в расписание</span><span class="ctx-icon">🕐</span></div>`:''}
+    <div class="ctx-item" onclick="showMatrixPicker('${t.id}');closeCtx()"><span>В матрицу Эйзенхауэра</span><span class="ctx-icon">⊞</span></div>
     <div class="ctx-item danger" onclick="del('${t.id}');closeCtx()"><span>Удалить</span><span class="ctx-icon">🗑</span></div>
   `;
   // Position near tap
@@ -1229,6 +1266,7 @@ function renderDetail() {
   if (currentView==='today')    body.innerHTML = renderToday();
   if (currentView==='schedule') body.innerHTML = renderSchedule();
   if (currentView==='history')  body.innerHTML = renderHistory();
+  if (currentView==='matrix')   body.innerHTML = renderMatrix();
 }
 
 function filterPills(panel, cats) {
@@ -1365,25 +1403,111 @@ function renderSchedule() {
   return html;
 }
 
+function histRow(t){
+  return `<div class="hist-row">
+    <div class="${t.done?'hist-check':'hist-no'}">${t.done?'✓':'○'}</div>
+    <div class="hist-text ${t.done?'':'pending'}">${esc(t.text)}</div>
+    ${t.cat?`<span class="hist-cat">${t.cat}</span>`:''}
+    ${t.scheduledDate&&t.scheduledDate!==t.date?`<span class="hist-cat" style="color:var(--blue)">📅${fdShort(t.scheduledDate)}</span>`:''}
+  </div>`;
+}
 function renderHistory() {
+  const toggle = `<div class="hist-group-toggle">
+    <button class="hist-gtab${histGroup==='date'?' active':''}" onclick="histGroup='date';renderDetail()">По дате</button>
+    <button class="hist-gtab${histGroup==='project'?' active':''}" onclick="histGroup='project';renderDetail()">По проектам</button>
+  </div>`;
+  // Collect all tasks from history archive + active done tasks
+  const allTasks = [...S.tasks, ...S.history.flatMap(h=>h.tasks)];
+  if(!allTasks.length) return toggle+`<div class="empty-state"><div class="empty-emoji">📁</div><div class="empty-msg">История пуста</div></div>`;
+
+  if(histGroup==='project'){
+    // Group by category
+    const byCat={};
+    allTasks.forEach(t=>{
+      const key=t.cat||'Без проекта';
+      if(!byCat[key])byCat[key]=[];
+      byCat[key].push(t);
+    });
+    const cats=Object.keys(byCat).sort();
+    return toggle+cats.map(cat=>{
+      const ts=byCat[cat];
+      ts.sort((a,b)=>b.date.localeCompare(a.date));
+      const done=ts.filter(t=>t.done).length,pct=ts.length?Math.round(done/ts.length*100):0;
+      return `<div class="hist-section">
+        <div class="hist-sec-title">${cat} · ${ts.length} задач · ${pct}%</div>
+        <div class="tasks-card">${ts.map(t=>histRow(t)).join('')}</div>
+      </div>`;
+    }).join('');
+  }
+  // By date (default)
   const byD={};
   S.tasks.forEach(t=>{if(!byD[t.date])byD[t.date]=[];byD[t.date].push(t);});
   S.history.forEach(h=>{if(!byD[h.date])byD[h.date]=h.tasks;});
   const dates=Object.keys(byD).sort((a,b)=>b.localeCompare(a));
-  if(!dates.length) return `<div class="empty-state"><div class="empty-emoji">📁</div><div class="empty-msg">История пуста</div></div>`;
-  return dates.map(d=>{
+  if(!dates.length) return toggle+`<div class="empty-state"><div class="empty-emoji">📁</div><div class="empty-msg">История пуста</div></div>`;
+  return toggle+dates.map(d=>{
     const ts=byD[d],done=ts.filter(t=>t.done).length,pct=ts.length?Math.round(done/ts.length*100):0;
     return `<div class="hist-section">
       <div class="hist-sec-title">${fdFull(d)} · ${pct}%</div>
-      <div class="tasks-card">${ts.map(t=>`
-        <div class="hist-row">
-          <div class="${t.done?'hist-check':'hist-no'}">${t.done?'✓':'○'}</div>
-          <div class="hist-text ${t.done?'':'pending'}">${esc(t.text)}</div>
-          ${t.cat?`<span class="hist-cat">${t.cat}</span>`:''}
-        </div>`).join('')}
-      </div>
+      <div class="tasks-card">${ts.map(t=>histRow(t)).join('')}</div>
     </div>`;
   }).join('');
+}
+
+function renderMatrix() {
+  const QUADS = [
+    {k:'q1', cls:'matrix-q1', icon:'🔴', title:'Срочно & Важно',      sub:'Делать сейчас'},
+    {k:'q2', cls:'matrix-q2', icon:'🟡', title:'Важно, не срочно',     sub:'Запланировать'},
+    {k:'q3', cls:'matrix-q3', icon:'🟠', title:'Срочно, не важно',     sub:'Делегировать'},
+    {k:'q4', cls:'matrix-q4', icon:'⬜', title:'Не важно, не срочно',  sub:'Исключить'},
+  ];
+  return `<div class="matrix-grid">${QUADS.map(q=>{
+    const tasks=S.tasks.filter(t=>t.eisenhower===q.k);
+    return `<div class="matrix-q ${q.cls}">
+      <div class="matrix-q-header">
+        <span class="matrix-q-icon">${q.icon}</span>
+        <div><div class="matrix-q-title">${q.title}</div><div class="matrix-q-sub">${q.sub}</div></div>
+      </div>
+      ${tasks.map(t=>`<div class="matrix-task">
+        <span class="matrix-task-text" title="${esc(t.text)}">${esc(t.text)}</span>
+        <button class="matrix-task-del" onclick="setEisenhower('${t.id}',null)" title="Убрать">×</button>
+      </div>`).join('')}
+      <span class="matrix-add" onclick="pickForMatrix('${q.k}')">+ Добавить</span>
+    </div>`;
+  }).join('')}</div>`;
+}
+function setEisenhower(id, quad){
+  const t=S.tasks.find(t=>t.id===id);if(!t)return;
+  t.eisenhower=quad;
+  save();renderDetail();render();
+  if(quad)snack('Добавлено в матрицу');
+}
+function pickForMatrix(quad){
+  // Show unassigned tasks to pick from
+  const unassigned=S.tasks.filter(t=>!t.eisenhower&&!t.done);
+  if(!unassigned.length){snack('Нет задач для добавления');return;}
+  const menu=document.getElementById('ctxMenu');
+  menu.className='ctx-menu';
+  menu.innerHTML=`<div style="padding:8px 14px;font-size:13px;color:var(--text3);font-weight:600">Выбери задачу:</div>`+
+    unassigned.slice(0,8).map(t=>`<div class="ctx-item" onclick="setEisenhower('${t.id}','${quad}');closeCtx()">
+      <span>${esc(t.text)}</span></div>`).join('')+
+    (unassigned.length>8?`<div style="padding:6px 14px;font-size:12px;color:var(--text3)">...ещё ${unassigned.length-8}</div>`:'');
+  const x=window.innerWidth/2-100;
+  const y=window.innerHeight/2-150;
+  menu.style.cssText=`display:block;left:${x}px;top:${y}px;max-height:320px;overflow-y:auto;`;
+  setTimeout(()=>document.addEventListener('click',closeCtx,{once:true}),50);
+}
+function showMatrixPicker(taskId){
+  const QLABELS=[['q1','🔴 Срочно & Важно'],['q2','🟡 Важно, не срочно'],['q3','🟠 Срочно, не важно'],['q4','⬜ Не важно, не срочно']];
+  const menu=document.getElementById('ctxMenu');
+  menu.className='ctx-menu';
+  menu.innerHTML=`<div style="padding:8px 14px;font-size:13px;color:var(--text3);font-weight:600">Выбери квадрант:</div>`+
+    QLABELS.map(([k,label])=>`<div class="ctx-item" onclick="setEisenhower('${taskId}','${k}');closeCtx()"><span>${label}</span></div>`).join('')+
+    `<div class="ctx-item" onclick="setEisenhower('${taskId}',null);closeCtx()"><span style="color:var(--text3)">Убрать из матрицы</span></div>`;
+  const x=window.innerWidth/2-100;
+  const y=window.innerHeight/2-120;
+  menu.style.cssText=`display:block;left:${x}px;top:${y}px;`;
+  setTimeout(()=>document.addEventListener('click',closeCtx,{once:true}),50);
 }
 
 // ── Actions ───────────────────────────────────
@@ -1561,6 +1685,9 @@ function render(){
   document.getElementById('lr-today').textContent=total-done||'';
   document.getElementById('lr-sched').textContent=sched||'';
   document.getElementById('lr-hist').textContent=hist||'';
+  const matrix=S.tasks.filter(t=>t.eisenhower).length;
+  const lrMatrix=document.getElementById('lr-matrix');
+  if(lrMatrix)lrMatrix.textContent=matrix||'';
   document.getElementById('progFill').style.width=pct+'%';
   document.getElementById('progPct').textContent=pct+'%';
   document.getElementById('hdate').textContent=new Date().toLocaleDateString('ru-RU',{weekday:'short',day:'numeric',month:'short'});
