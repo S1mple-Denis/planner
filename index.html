@@ -1231,9 +1231,14 @@ function fdShort(d){
 function renderSchedule() {
   const d = currentSchedDate;
   const isToday = d === todayKey();
-  // Tasks scheduled for this specific date
-  const scheduled = S.tasks.filter(t=>t.scheduledDate===d && t.scheduledTime);
-  // Unscheduled: today's tasks without time + tasks marked for this date without time
+  // Tasks scheduled for this date (new-style with scheduledDate, or legacy inToday tasks for today)
+  const scheduled = S.tasks.filter(t=>
+    t.scheduledTime && (
+      t.scheduledDate===d ||
+      (isToday && t.inToday && !t.scheduledDate)
+    )
+  );
+  // Unscheduled: tasks in today's plan without time
   const un = isToday
     ? S.tasks.filter(t=>t.inToday&&!t.scheduledTime&&!t.scheduledDate)
     : S.tasks.filter(t=>t.scheduledDate===d&&!t.scheduledTime);
@@ -1317,7 +1322,7 @@ function clearHist(){if(!confirm('Очистить всю историю?'))retu
 function openSched(id){
   schedId=id;const t=S.tasks.find(t=>t.id===id);if(!t)return;
   document.getElementById('mTxt').value=t.text;
-  document.getElementById('mDate').value=t.scheduledDate||currentSchedDate||todayKey();
+  document.getElementById('mDate').value=t.scheduledDate||todayKey();
   document.getElementById('mTime').value=t.scheduledTime||'09:00';
   document.getElementById('mSched').style.display='flex';
 }
