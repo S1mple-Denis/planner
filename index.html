@@ -1209,7 +1209,7 @@ function taskRow(t) {
           <div class="task-meta">
             ${t.prio&&t.prio!=='none'?`<div class="prio-dot pd-${t.prio[0]}"></div>`:''}
             ${t.cat?`<span class="meta-tag">${t.cat}</span>`:''}
-            ${t.scheduledTime?`<span class="meta-time">◷ ${t.scheduledTime}</span>`:''}
+            ${t.scheduledTime?`<span class="meta-time" onclick="event.stopPropagation();openSched('${t.id}')" style="cursor:pointer">◷ ${t.scheduledTime} ✎</span>`:''}
             ${!t.inToday?`<span class="meta-tag" style="color:var(--blue);cursor:pointer" onclick="toToday('${t.id}')">+ В план дня</span>`:''}
           </div>
         </div>
@@ -1262,10 +1262,15 @@ function renderSchedule() {
     return `<div class="sched-row">
       <div class="sched-time">${h}</div>
       <div class="sched-content">
-        ${st.map(t=>`<div class="sched-task ${t.done?'done-s':t.prio==='high'?'sh':t.prio==='medium'?'sm':''}" onclick="tog('${t.id}')">
-          <span>${esc(t.text)}</span>
-          <div style="display:flex;gap:6px;align-items:center">
-            ${t.done?`<span style="color:var(--green);font-size:13px">✓</span>`:''}
+        ${st.map(t=>`<div class="sched-task ${t.done?'done-s':t.prio==='high'?'sh':t.prio==='medium'?'sm':''}" onclick="openSched('${t.id}')">
+          <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:0">
+            <div onclick="event.stopPropagation();tog('${t.id}')" style="width:20px;height:20px;border-radius:50%;border:2px solid ${t.done?'var(--green)':'var(--sep)'};background:${t.done?'var(--green)':'none'};flex-shrink:0;display:flex;align-items:center;justify-content:center;cursor:pointer">
+              ${t.done?'<span style="color:#fff;font-size:11px">✓</span>':''}
+            </div>
+            <span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(t.text)}</span>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center;flex-shrink:0">
+            <span style="font-size:12px;color:var(--text3)">✎</span>
             <button style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;padding:0" onclick="event.stopPropagation();unsched('${t.id}')">×</button>
           </div>
         </div>`).join('')}
