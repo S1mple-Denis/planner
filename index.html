@@ -647,6 +647,27 @@ body {
 }
 @keyframes snackIn { from{opacity:0;transform:translateX(-50%) translateY(8px)} to{opacity:1;transform:translateX(-50%) translateY(0)} }
 
+/* ── SPLASH ──────────────────────────────────── */
+#splash {
+  position: fixed; inset: 0; z-index: 9999;
+  background: var(--bg);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 16px;
+  transition: opacity .4s ease;
+}
+#splash.hide { opacity: 0; pointer-events: none; }
+.splash-icon { font-size: 64px; animation: splashPop .5s cubic-bezier(.34,1.56,.64,1) both; }
+.splash-title {
+  font-size: 24px; font-weight: 700; letter-spacing: -.4px;
+  color: var(--text1); animation: splashFade .5s .15s ease both;
+}
+.splash-sub {
+  font-size: 14px; color: var(--text3);
+  animation: splashFade .5s .3s ease both;
+}
+@keyframes splashPop  { from{opacity:0;transform:scale(.6)} to{opacity:1;transform:scale(1)} }
+@keyframes splashFade { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
 @media (min-width:600px) {
   .smart-grid { grid-template-columns: repeat(4,1fr); }
   .add-bar { max-width: 700px; }
@@ -654,6 +675,13 @@ body {
 </style>
 </head>
 <body>
+
+<!-- ═══ SPLASH ══════════════════════════════════ -->
+<div id="splash">
+  <div class="splash-icon">🧠</div>
+  <div class="splash-title">Brain Dump & Task Planner</div>
+  <div class="splash-sub">Загрузка...</div>
+</div>
 
 <!-- ═══ PIN SCREEN ═════════════════════════════ -->
 <div id="pinScreen">
@@ -945,6 +973,7 @@ body {
 <div id="ctxMenu" style="display:none"></div>
 
 <script>
+window._appStart = Date.now();
 const HOURS=['07:00','08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00','22:00'];
 const CATS=['','NCars','NCase','Proove','Личное'];
 
@@ -959,11 +988,20 @@ const DEFAULT_PIN = '1234';
 let pinUnlocked = false;
 
 // ── Firebase ─────────────────────────────────
+function hideSplash(){
+  const sp=document.getElementById('splash');
+  if(!sp||sp.classList.contains('hide'))return;
+  sp.classList.add('hide');
+  setTimeout(()=>sp.style.display='none',420);
+}
 window._fbLoaded = function(data) {
   if (data) { S.tasks=data.tasks||[]; S.history=data.history||[]; S.fltr=data.fltr||{dump:'',today:''}; }
   pinUnlocked = true;
   document.getElementById('pinScreen').style.display = 'none';
   showAppOrSetup();
+  // Show splash for at least 1.2s for a smooth feel
+  const elapsed = Date.now() - window._appStart;
+  setTimeout(hideSplash, Math.max(0, 1200 - elapsed));
 };
 function save() { if(window._fbSave) window._fbSave({tasks:S.tasks,history:S.history,fltr:S.fltr}); }
 
