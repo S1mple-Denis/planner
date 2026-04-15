@@ -345,7 +345,12 @@ body {
 }
 .add-input:focus { border-color: var(--blue); }
 .add-input::placeholder { color: var(--text3); }
-.add-row2 { display: flex; gap: 8px; margin-top: 7px; }
+.add-row2 { display: flex; gap: 8px; margin-top: 7px; flex-wrap: wrap; }
+.add-sched-row { display: none; gap: 8px; margin-top: 7px; align-items: center; }
+.add-sched-row.open { display: flex; }
+.add-sched-btn { background: none; border: none; font-size: 18px; cursor: pointer; padding: 2px 4px; border-radius: 6px; color: var(--text2); flex-shrink: 0; }
+.add-sched-btn.active { color: var(--blue); }
+.add-dt-input { flex: 1; background: var(--card2); border: 1px solid var(--sep); border-radius: 10px; padding: 7px 10px; font-size: 14px; color: var(--text1); min-width: 0; }
 .add-sel {
   flex: 1; background: var(--card2); border: 1px solid var(--sep);
   border-radius: var(--radius-sm); padding: 7px 10px;
@@ -911,6 +916,11 @@ body {
           <option value="Личное">Личное</option>
         </select>
         <button class="bulk-btn" onclick="showBulk()">Списком</button>
+        <button class="add-sched-btn" id="addSchedBtn" title="Назначить дату и время" onclick="toggleAddSched()">🕐</button>
+      </div>
+      <div class="add-sched-row" id="addSchedRow">
+        <input class="add-dt-input" type="date" id="addSchedDate">
+        <input class="add-dt-input" type="time" id="addSchedTime" style="max-width:110px">
       </div>
     </div>
     <button class="send-btn" onclick="addTask()">↑</button>
@@ -1133,20 +1143,39 @@ function detailActionFn() {
 }
 
 // ── Add task ──────────────────────────────────
+function toggleAddSched(){
+  const row=document.getElementById('addSchedRow');
+  const btn=document.getElementById('addSchedBtn');
+  const open=row.classList.toggle('open');
+  btn.classList.toggle('active',open);
+  if(open){
+    document.getElementById('addSchedDate').value=todayKey();
+    document.getElementById('addSchedTime').value='09:00';
+  }
+}
 function addTask() {
   const inp=document.getElementById('addInput');
   const txt=inp.value.trim(); if(!txt)return;
   const prio=document.getElementById('addPrio').value;
   const cat=document.getElementById('addCat').value;
+  const schedOpen=document.getElementById('addSchedRow').classList.contains('open');
+  const schedDate=schedOpen?document.getElementById('addSchedDate').value:null;
+  const schedTime=schedOpen?document.getElementById('addSchedTime').value:null;
   const lines=txt.split('\n').map(s=>s.trim()).filter(Boolean);
   lines.forEach(l=>S.tasks.push({
     id:uid(),text:l,prio,cat,done:false,
-    date:todayKey(),scheduledTime:null,
-    inToday: currentView==='today'
+    date:schedDate||todayKey(),
+    scheduledTime: schedTime||null,
+    scheduledDate: schedDate||null,
+    inToday: schedDate===todayKey() || currentView==='today'
   }));
   inp.value=''; inp.style.height='auto';
+  if(schedOpen && schedDate){
+    // Navigate to schedule for that date
+    currentSchedDate=schedDate;
+  }
   save(); renderDetail(); render();
-  snack(`+${lines.length}`);
+  snack(schedTime?`+1 · ◷${schedTime} · ${fdShort(schedDate)}`:`+${lines.length}`);
 }
 
 function showBulk(){document.getElementById('mBulk').style.display='flex';}
