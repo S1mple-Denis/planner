@@ -638,43 +638,6 @@ body {
   .smart-grid { grid-template-columns: repeat(4,1fr); }
   .add-bar { max-width: 700px; }
 }
-
-/* Expandable home panels */
-.expand-panel { background:var(--card); border-top:1px solid var(--sep); }
-.expand-task-row {
-  display:flex; align-items:center; gap:10px;
-  padding:10px 16px; border-bottom:1px solid var(--sep);
-}
-.expand-task-row:last-child { border-bottom:none; }
-.exp-circle {
-  width:20px; height:20px; border-radius:50%;
-  border:2px solid var(--sep); flex-shrink:0; cursor:pointer;
-  display:flex; align-items:center; justify-content:center;
-  transition:all .15s;
-}
-.exp-circle.ph { border-color:var(--red); }
-.exp-circle.pm { border-color:var(--orange); }
-.exp-circle.pl { border-color:var(--blue); }
-.exp-circle.done { border-color:var(--green); background:var(--green); }
-.exp-circle.done::after {
-  content:''; width:4px; height:8px;
-  border:2px solid white; border-top:none; border-left:none;
-  transform:rotate(45deg) translateY(-1px);
-}
-.exp-text { flex:1; font-size:15px; line-height:1.35; }
-.exp-text.done { text-decoration:line-through; color:var(--text2); }
-.exp-chev {
-  font-size:13px; color:var(--text3); flex-shrink:0;
-  display:inline-block; transition:transform .2s;
-  -webkit-user-select:none; user-select:none;
-  padding:2px 4px; line-height:1; cursor:pointer;
-}
-.exp-chev.open { transform:rotate(90deg); }
-.exp-nav {
-  background:none; border:none; color:var(--blue);
-  font-size:17px; line-height:1; cursor:pointer;
-  padding:2px 6px; flex-shrink:0;
-}
 </style>
 </head>
 <body>
@@ -715,7 +678,7 @@ body {
     <div class="setup-top">
       <div class="setup-icon">☁️</div>
       <h1>Настройка синхронизации</h1>
-      <p>Подключи Firebase — данные будут доступны на всехстройствах</p>
+      <p>Подключи Firebase ℔ данные будут доступны на Всех устройствах</p>
     </div>
 
     <div class="setup-card">
@@ -756,7 +719,7 @@ body {
     </div>
 
     <button class="ios-btn" onclick="doSetup()">Подключить</button>
-    <div class="setup-note">Для постоянной работы вставь данные Firebase прямо в HTML-файл в раздел firebaseConfig — тогда файл работает на всех устройствахбез настройки.</div>
+    <div class="setup-note">Для постоянной работы вставь уданные Firebase прямо в HTML-файл в раздел firebaseConfig — ногда файл rabotait на всех устройствах без настройки.</div>
   </div>
 </div>
 
@@ -765,157 +728,311 @@ body {
 
   <!-- HOME -->
   <div id="homeView">
-    <!-- Smart cards -->�]��[OH�Y[�ΌM�M��X^]�Y���X\��[��]]��\�^N��^�[YۋZ][\Θ�[�\���\�Y�KX�۝[���X�KX�]�Y[�ȏ��]��[OH��۝\�^�N�M���۝]�ZY����]\�\�X�[�΋K��ȏ���Z[�[\	�\��[��\��]���]��[OH�\�^N��^�[YۋZ][\Θ�[�\���\����]��\��H��[��Y�YH�YH��[������]���]��[OH��۝\�^�N�L����܎��\�K]^�H�YH�]H���]����]����]����]��\��H��X\�YܚY���]��\��H��X\�X�\��ۘ�X��H��[�]Z[
-	�[\	�H���]��\��H���]����]��\��H���ZX�ۈ�YH��'��O�]����]���]��\��H���X��[��YH���Y[\���]���]��\��H���[X�[��&�/�/�.4.�.�,�]����]���]��\��H��X\�X�\��ۘ�X��H��[�]Z[
-	��^I�H���]��\��H���]����]��\��H���ZX�ۈ�YH��'����]����]���]��\��H���X��[��YH���]�^H���]���]��\��H���[X�[��(t-t,�/�-4/tc��]����]���]��\��H��X\�X�\��ۘ�X��H��[�]Z[
-	��^I�H���]��\��H���]����]��\��H���ZX�ۈܙY[����$��]����]���]��\��H���X��[��YH���YۙH���]���]��\��H���[X�[��$�/�`�/�,�/��]����]���]��\��H��X\�X�\��ۘ�X��H��[�]Z[
-	��^I�H���]��\��H���]����]��\��H���ZX�ۈ�Y��O�]����]���]��\��H���X��[��YH���ZY����]���]��\��H���[X�[��(t`4/�a�/t/��]����]����]����KKH��ܙ\���\�KO��]��[OH�X^]�Y���X\��[��M]]��Y[�ΌM�ȏ��]��[OH�\�^N��^ڝ\�Y�KX�۝[���X�KX�]�Y[�ٛ۝\�^�N�L����܎��\�K]^�N�X\��[�X���N�\ȏ���[��'�`4/�,�`4-t`t`H4-4/tc���[���[�YH�������	O��[����]���]��[OH�ZY��ؘX��ܛ�[���\�K\�\
-N؛ܙ\�\�Y]\Ό��ݙ\���ΚY[�ȏ��]�YH���њ[��[OH�ZY��L	NؘX��ܛ�[���\�KYܙY[�N؛ܙ\�\�Y]\Ό���[��][ێ��Y��\���Y�	H���]����]����]����KKH\��KO��]��\��H�\��\�X�[ۈ���]��\��H��X�[ۋZXY\���'4/�.4`t/�.4`t.�.�]���]��\��H�\��X�\����]��\��H�\�\��Ȉۘ�X��H��[�]Z[
-	�[\	�H���]��\��H�\�\���ZX�ۈKY[\��'��O�]���]��\��H�\�\���[�[YH��&�/�/�.4.�.�,4.4-4-t.O�]���]��\��H�\�\���\�Y����]��\��H�\�\���X��[��YH��Y[\���]���]��\��H�\�\���X�]��ۈ���.��]����]����]���]��\��H�\�\��Ȉۘ�X��H����Q^[�
-	��^I�]�[�
-H��[OH��\��܎��[�\����]��\��H�\�\���ZX�ۈK]�^H��'����]���]��\��H�\�\���[�[YH��'�.�,4/H4-4/tc��]���]��\��H�\�\���\�Y����]��\��H�\�\���X��[��YH��]�^H���]����]ۈ�\��H�^[�]��ۘ�X��H�]�[������Y�][ۊ
-N��[�]Z[
-	��^I�H���.�؝]ۏ��]��\��H�^X�]��YH��]�]�^H���.��]����]����]���]��\��H�^[�\[�[�YH�[�[]�^H��[OH�\�^N��ۙH���]���]��\��H�\�\��Ȉۘ�X��H����Q^[�
-	���Y	�]�[�
-H��[OH��\��܎��[�\����]��\��H�\�\���ZX�ۈK\��Y��'�d�]���]��\��H�\�\���[�[YH��(4,4`t/�.4`t,4/t.4-O�]���]��\��H�\�\���\�Y����]��\��H�\�\���X��[��YH��\��Y���]����]ۈ�\��H�^[�]��ۘ�X��H�]�[������Y�][ۊ
-N��[�]Z[
-	���Y[I�H���.�؝]ۏ��]��\��H�^X�]��YH��]�\��Y���.��]����]����]���]��\��H�^[�\[�[�YH�[�[\��Y��[OH�\�^N��ۙH���]���]��\��H�\�\��Ȉۘ�X��H��[�]Z[
-	�\�ܞI�H���]��\��H�\�\���ZX�ۈKZ\����$��]���]��\��H�\�\���[�[YH��&4`t`�/�`4.4c��]���]��\��H�\�\���\�Y����]��\��H�\�\���X��[��YH��Z\����]���]��\��H�\�\���X�]��ۈ���.��]����]����]����]����]����]����KKHURS�QU�KO��]�YH�]Z[�Y]ȏ��]��\��H�]Z[[�]����]��\��H�]Z[[�]�Z[��\�����]ۈ�\��H��X��X���ۘ�X��H����Q]Z[
+    <!-- Smart cards -->
+    <div style="padding:16px 16px 0; max-width:700px; margin:0 auto; display:flex; align-items:center; justify-content:space-between;">
+      <div style="font-size:22px; font-weight:700; letter-spacing:-.3px;">Brain Dump & Task Planner</div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div class="sync-dot idle" id="syncDot"></div>
+        <div style="font-size:12px;color:var(--text2)" id="hdate"></div>
+      </div>
+    </div>
 
-H���ݙ��Y]Л�H�LMȈ�[H��ۙH�����OH��\��[���܈�����K]�YH���������K[[�X�\H���[������K[[�Z��[�H���[���]H�NHSH�SHM��Ϗ�ݙς�4't,4-�,4-�؝]ۏ��]��[OH�\�^N��^��\�L��[YۋZ][\Θ�[�\�����]ۈYH�]Z[X�[ۈ��[OH��X��ܛ�[���ۙN؛ܙ\���ۙN���܎��\�KX�YJNٛ۝\�^�N�M\��\��܎��[�\�ٛ۝Y�[Z[N�X\K\�\�[K�[��\�\�Y�Ȉۘ�X��H�]Z[X�[ۑ��
-H��؝]ۏ���]����]����]���]��\��H�]Z[]]KX�\����]��\��H�]Z[ZX�ۈ�YH�]Z[X�ۈ���]���]��\��H�]Z[ZXY[�ȈYH�]Z[XY[�ȏ��]����]���]��\��H�]Z[X��H�YH�]Z[��H���]����]����KKHQ�T�KO��]��\��H�YX�\��YH�Y�\����]��\��H�YX�\�Z[��\����^\�XH�\��H�YZ[�]�YH�Y[�]�X�Z�\�H�'t/�,�,4c�4-�,4-4,4a�,��������H�H��ۚ[�]H�\˜�[K�ZY�I�]]���\˜�[K�ZY�]\˜�ܛ�ZY�
-��	Ȃ�ۚ�^Y�ۏH�Y�]�[���^OOOI�[�\�ɉ�Y]�[���Y��^J^�]�[���]�[�Y�][
+    <div class="smart-grid">
+      <div class="smart-card" onclick="openDetail('dump')">
+        <div class="sc-top">
+          <div class="sc-icon blue">📥</div>
+        </div>
+        <div class="sc-count" id="sc-dump">0</div>
+        <div class="sc-label">Копилка</div>
+      </div>
+      <div class="smart-card" onclick="openDetail('today')">
+        <div class="sc-top">
+          <div class="sc-icon blue">📋</div>
+        </div>
+        <div class="sc-count" id="sc-today">0</div>
+        <div class="sc-label">Сегодня</div>
+      </div>
+      <div class="smart-card" onclick="openDetail('today')">
+        <div class="sc-top">
+          <div class="sc-icon green">✓</div>
+        </div>
+        <div class="sc-count" id="sc-done">0</div>
+        <div class="sc-label">Готово</div>
+      </div>
+      <div class="smart-card" onclick="openDetail('today')">
+        <div class="sc-top">
+          <div class="sc-icon red">!</div>
+        </div>
+        <div class="sc-count" id="sc-high">0</div>
+        <div class="sc-label">Срочно</div>
+      </div>
+    </div>
 
-N�Y\��
-N�H���^\�XO��]��\��H�Y\��̈����[X��\��H�Y\�[�YH�Y�[ȏ���[ۈ�[YOH��ۙH��$t-t-�4/�`4.4/�`4.4`�-t`�,��[ۏ���[ۈ�[YOH�Y�����H4(t`4/�a�/t/���[ۏ���[ۈ�[YOH�YY][H�����4$�,4-�/t/���[ۏ���[ۈ�[YOH��ȏ����4'�/�`�/�/��[ۏ����[X����[X��\��H�Y\�[�YH�Y�]����[ۈ�[YOH���$t-t-�4.�,4`�-t,�/�`4.4.��[ۏ���[ۈ�[YOH���\�ȏ���\����[ۏ���[ۈ�[YOH���\�H����\�O��[ۏ���[ۈ�[YOH���ݙH����ݙO��[ۏ���[ۈ�[YOH�&�.4a�/t/�-H��&�.4a�/t/�-O��[ۏ����[X����]ۈ�\��H��[�X���ۘ�X��H���Н[�
-H��(t/�.4`t.�/�/؝]ۏ���]����]����]ۈ�\��H��[�X���ۘ�X��H�Y\��
-H����O؝]ۏ���]����]����KKHS�S���QSHKO��]��\��H�[�[[ݙ\�^H�YH�T��Y��[OH�\�^N��ۙH�ۘ�X��H�Y�]�[��\��]OO]\�X���S[�
-	�T��Y	�H���]��\��H�[�[\�Y]���]��\��H��Y]Z[�H���]���]��\��H��Y]]]H��'�/�`t`�,4,�.4`�c4,�4`4,4`t/�.4`t,4/t.4-O�]���[�]�\��H��Y]Z[�]�YH�U���[�]�\��H��Y]Z[�]�YH�Q]H�\OH�]H���[�]�\��H��Y]Z[�]�YH�U[YH�\OH�[YH��[YOH�N�����]ۈ�\��H��Y]X���ۘ�X��H��ۙ�\�T��Y
+    <!-- Progress bar -->
+    <div style="max-width:700px;margin:14px auto 0;padding:0 16px;">
+      <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-bottom:5px;">
+        <span>Прогресс дня</span><span id="progPct">0%</span>
+      </div>
+      <div style="height:4px;background:var(--sep);border-radius:2px;overflow:hidden;">
+        <div id="progFill" style="height:100%;background:var(--green);border-radius:2px;transition:width .35s;width:0%"></div>
+      </div>
+    </div>
 
-H��%�,4/�.�,4/t.4`4/�,�,4`�c؝]ۏ���]ۈ�\��H��Y]X��Y����ۘ�X��H����S[�
-	�T��Y	�H��'�`�/4-t/t,؝]ۏ���]����]����KKHS�S��S�KO��]��\��H�[�[[ݙ\�^H�YH�P�[Ȉ�[OH�\�^N��ۙH�ۘ�X��H�Y�]�[��\��]OO]\�X���S[�
-	�P�[��H���]��\��H�[�[\�Y]���]��\��H��Y]Z[�H���]���]��\��H��Y]]]H��%4/�,t,4,�.4`�c4`t/�.4`t.�/�/�]���^\�XH�\��H��Y]]H�YH���X�Z�\�H�&�,4-�-4,4c�4`t`�`4/�.�,8�%4/�`�-4-t.�c4/t,4c�4-�,4-4,4a�,	��L�'�/�-�,�/�/t.4`�c4&4,�,4/t`Ɉ�L�'�`4/�,�-t`4.4`�c4/�`�a�dt`���Lˋ�����^\�XO��]��\��H��Y]\��ȏ���[X��\��H��Y]\�[�YH���[ȏ���[ۈ�[YOH��ۙH��$t-t-�4/�`4.4/�`4.4`�-t`�,��[ۏ���[ۈ�[YOH�Y�����H4(t`4/�a�/t/���[ۏ���[ۈ�[YOH�YY][H�����4$�,4-�/t/���[ۏ���[ۈ�[YOH��ȏ����4'�/�`�/�/��[ۏ����[X����[X��\��H��Y]\�[�YH���]����[ۈ�[YOH���$t-t-�4.�,4`�-t,�/�`4.4.��[ۏ���[ۈ�[YOH���\�ȏ���\����[ۏ���[ۈ�[YOH���\�H����\�O��[ۏ���[ۈ�[YOH���ݙH����ݙO��[ۏ���[ۈ�[YOH�&�.4a�/t/�-H��&�.4a�/t/�-O��[ۏ����[X����]����]ۈ�\��H��Y]X���ۘ�X��H��ۙ�\�P�[�
-H��%4/�,t,4,�.4`�c؝]ۏ���]ۈ�\��H��Y]X��Y����ۘ�X��H����S[�
-	�P�[��H��'�`�/4-t/t,؝]ۏ���]����]����KKHS�S�S��UTKO��]��\��H�[�[[ݙ\�^H�YH�T[��]\��[OH�\�^N��ۙH�ۘ�X��H�Y�]�[��\��]OO]\�X���S[�
-	�T[��]\	�H���]��\��H�[�[\�Y]���]��\��H��Y]Z[�H���]���]��\��H��Y]]]H�YH�[��]\]H��(�`t`�,4/t/�,�.4`�cS��]���[�]�\��H��Y]Z[�]�YH�[��]Ȉ\OH�\���ܙ�[�][�OH��[Y\�XȈX^[��H��]\��H��NWJ��X�Z�\�H�'t/�,�b�.HS�
+    <!-- Lists -->
+    <div class="lists-section">
+      <div class="section-header">Мои списки</div>
+      <div class="lists-card">
+        <div class="list-row" onclick="openDetail('dump')">
+          <div class="list-row-icon li-dump">📥</div>
+          <div class="list-row-name">Копилка идей</div>
+          <div class="list-row-right">
+            <div class="list-row-count" id="lr-dump">0</div>
+            <div class="list-row-chevron">›</div>
+          </div>
+        </div>
+        <div class="list-row" onclick="openDetail('today')">
+          <div class="list-row-icon li-today">📋</div>
+          <div class="list-row-name">План дня</div>
+          <div class="list-row-right">
+            <div class="list-row-count" id="lr-today">0</div>
+            <div class="list-row-chevron">›</div>
+          </div>
+        </div>
+        <div class="list-row" onclick="openDetail('schedule')">
+          <div class="list-row-icon li-sched">🕐</div>
+          <div class="list-row-name">Расписание</div>
+          <div class="list-row-right">
+            <div class="list-row-count" id="lr-sched">0</div>
+            <div class="list-row-chevron">›</div>
+          </div>
+        </div>
+        <div class="list-row" onclick="openDetail('history')">
+          <div class="list-row-icon li-hist">✓</div>
+          <div class="list-row-name">История</div>
+          <div class="list-row-right">
+            <div class="list-row-count" id="lr-hist">0</div>
+            <div class="list-row-chevron">›</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-4a�.4a4`4b�H���[�]�\��H��Y]Z[�]�YH�[��ۙ�\�H�\OH�\���ܙ�[�][�OH��[Y\�XȈX^[��H��]\��H��NWJ��X�Z�\�H�'�/�,�`�/�`4.S����]��[OH��۝\�^�N�L����܎��\�K\�Y
-N�Z[�ZZY��N�X\��[�X���N�L��YH�[��]\\�����]����]ۈ�\��H��Y]X���ۘ�X��H��ۙ�\�T[��]\
+  <!-- DETAIL VIEW -->
+  <div id="detailView">
+    <div class="detail-nav">
+      <div class="detail-nav-inner">
+        <button class="back-btn" onclick="closeDetail()">
+          <svg viewBox="0 0 10 17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 1L1 8.5L9 16"/></svg>
+          Назад
+        </button>
+        <div style="display:flex;gap:12px;align-items:center">
+          <button id="detailAction" style="background:none;border:none;color:var(--blue);font-size:15px;cursor:pointer;font-family:-apple-system,sans-serif;" onclick="detailActionFn()"></button>
+        </div>
+      </div>
+    </div>
+    <div class="detail-title-bar">
+      <div class="detail-icon" id="detailIcon"></div>
+      <div class="detail-heading" id="detailHeading"></div>
+    </div>
+    <div class="detail-body" id="detailBody"></div>
+  </div>
 
-H��(t/�at`4,4/t.4`�c؝]ۏ���]ۈ�\��H��Y]X��Y����ۘ�X��H����S[�
-	�T[��]\	�H��'�`�/4-t/t,؝]ۏ���]����]����KKH�ӕVQS�HKO��]�YH��Y[�H��[OH�\�^N��ۙH���]�����ܚ\���ۜ��T��V��
-Ό	�	��	�	�N�	�	�L�	�	�LN�	�	�L��	�	�LΌ	�	�M�	�	�MN�	�	�M��	�	�MΌ	�	�N�	�	�NN�	�	̌�	�	̌N�	�	̌��	�N�ۜ��U�V���	Ӑ�\���	Ӑ�\�I�	���ݙI�	�&�.4a�/t/�-I�N�]�H�\��Ζ�K\�ܞN��K����[\����^N���HN]��YYH�[]�\��[��Y]�H�[���	�[\	�	��^I�	���Y[I�	�\�ܞI]�\��[��[\�H	��][��Y��\�H	���ۜ�Q�US�S�H	�L��	�][�[����YH�[�N���8� 8� �\�X�\�H8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� ��[��˗٘��YYH�[��[ۊ]JHY�
-]JH�˝\���Y]K�\����N�˚\�ܞOY]K�\�ܞ_�N�˙��Y]K����[\����^N���N�B�Y�
-\[�[����Y
-H�X��[�
-N[�H�[�\�
-NN�[��[ۈ�]�J
-H�Y��[��˗٘��]�JH�[��˗٘��]�J�\��Δ˝\���\�ܞN�˚\�ܞK���˙��JN�B����8� 8� �]\8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� ��[��[ۈ��]\
+  <!-- ADD BAR -->
+  <div class="add-bar" id="addBar">
+    <div class="add-bar-inner">
+      <textarea class="add-input" id="addInput" placeholder="Новая задача..." rows="1"
+        oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"
+        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();addTask();}"></textarea>
+      <div class="add-row2">
+        <select class="add-sel" id="addPrio">
+          <option value="none">Без приоритета</option>
+          <option value="high">↑ Срочно</option>
+          <option value="medium">→ Важно</option>
+          <option value="low">↓ Потом</option>
+        </select>
+        <select class="add-sel" id="addCat">
+          <option value="">Без категории</option>
+          <option value="NCars">NCars</option>
+          <option value="NCase">NCase</option>
+          <option value="Proove">Proove</option>
+          <option value="Личное">Личное</option>
+        </select>
+        <button class="bulk-btn" onclick="showBulk()">Списком</button>
+      </div>
+    </div>
+    <button class="send-btn" onclick="addTask()">↑</button>
+  </div>
+</div>
 
-H�ۜ��Z�O���[Y[���][[Y[��RY
-�K��[YK��[J
-N�ۜ�ٙ�^�\R�^N��	����^I�K]]�XZ[���	���]]	�K]X�\�UT���	�����K�ڙX�Y��	����ډ�K\Y��	���\	�_NY�Xٙ˘\R�^_Xٙ˙]X�\�UT�
-^�[\�
-	�'t`�-�/tb�4.�,4.�4/4.4/t.4/4`�/\R�^H4.]X�\�UT�	�Nܙ]\���B���[�ܘY�K��]][J	٘�ٙ����Ӌ���[��Y�Jٙ�JN[\�
-	�$�/�`�/�,�/�H4$�`t`�,4,�c4-4,4/t/tb�-H�\�X�\�H4/�`4c�/4/�4,�Sta4,4.t.�
-4`4,4-�-4-t.��\�X�\�P�ۙ�Y�H4-4.�c�4`4,4,t/�`�b�4/t,4,�`t-taH4`�`t`�`4/�.t`t`�,�,4aH4,t-t-�4/�/�,�`�/�`4/t/�.H4/t,4`t`�`4/�.t.�.��N��][ۋ��[�Y
+<!-- MODAL: SCHEDULE -->
+<div class="modal-overlay" id="mSched" style="display:none" onclick="if(event.target===this)closeMod('mSched')">
+  <div class="modal-sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Поставить в расписание</div>
+    <input class="sheet-input" id="mTxt" readonly>
+    <input class="sheet-input" id="mTime" type="time" value="09:00">
+    <button class="sheet-btn" onclick="confirmSched()">Запланировать</button>
+    <button class="sheet-btn-ghost" onclick="closeMod('mSched')">Отмена</button>
+  </div>
+</div>
 
-NB����8� 8� S�8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� ��[��[ۈ�][�
-H��]\����[�ܘY�K��]][J	�\[��_Q�US�S��B���[��[ۈ�X��[�
-H�ۜ�[�[H��[Y[���][[Y[��RY
-	�[��ܙY[��N������]\Y��\�X�\�H���ۙ�Y�\�Y��ۜ�����HJ�[��˗٘��]�H	���[��˗٘��]�K����[��
-K�[��Y\�	��I�JN[�[��[K�\�^HH	ٛ^	���[Y[���][[Y[��RY
-	�[��[��P���K��[K��\�X�[]HH	ݚ\�X�I�B���[��[ۈ
-
-HY�
-[��Y��\��[���H
+<!-- MODAL: BULK -->
+<div class="modal-overlay" id="mBulk" style="display:none" onclick="if(event.target===this)closeMod('mBulk')">
+  <div class="modal-sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Добавить списком</div>
+    <textarea class="sheet-ta" id="bTxt" placeholder="Каждая строка — отдельная задача&#10;Позвонить Ивану&#10;Проверить отчёт&#10;..."></textarea>
+    <div class="sheet-row">
+      <select class="sheet-sel" id="bPrio">
+        <option value="none">Без приоритета</option>
+        <option value="high">↑ Срочно</option>
+        <option value="medium">→ Важно</option>
+        <option value="low">↓ Потом</option>
+      </select>
+      <select class="sheet-sel" id="bCat">
+        <option value="">Без категории</option>
+        <option value="NCars">NCars</option>
+        <option value="NCase">NCase</option>
+        <option value="Proove">Proove</option>
+        <option value="Личное">Личное</option>
+      </select>
+    </div>
+    <button class="sheet-btn" onclick="confirmBulk()">Добавить</button>
+    <button class="sheet-btn-ghost" onclick="closeMod('mBulk')">Отмена</button>
+  </div>
+</div>
 
-H�]\��[��Y��\�
-�H\]T[���
-NY�
-[��Y��\��[��OOH
+<!-- MODAL: PIN SETUP -->
+<div class="modal-overlay" id="mPinSetup" style="display:none" onclick="if(event.target===this)closeMod('mPinSetup')">
+  <div class="modal-sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title" id="pinSetupTitle">Установить PIN</div>
+    <input class="sheet-input" id="pinNew" type="password" inputmode="numeric" maxlength="4" pattern="[0-9]*" placeholder="Новый PIN (4 цифры)">
+    <input class="sheet-input" id="pinConfirm" type="password" inputmode="numeric" maxlength="4" pattern="[0-9]*" placeholder="Повтори PIN">
+    <div style="font-size:13px;color:var(--red);min-height:18px;margin-bottom:12px" id="pinSetupErr"></div>
+    <button class="sheet-btn" onclick="confirmPinSetup()">Сохранить</button>
+    <button class="sheet-btn-ghost" onclick="closeMod('mPinSetup')">Отмена</button>
+  </div>
+</div>
 
-H�][Y[�]
-�X��[�[�]ML
-NB��[��[ۈ[
+<!-- CONTEXT MENU -->
+<div id="ctxMenu" style="display:none"></div>
 
-H�[��Y��\�H[��Y��\���X�JLJN�\]T[���
-N���[Y[���][[Y[��RY
-	�[�\���K�^�۝[�I���B���[��[ۈ\]T[���\��H�܈
-]OL�O
-�J��H�ۜ�H��[Y[���][[Y[��RY
-	�	��JN��\�Ә[YHH	��	�
-�
-H[��Y��\��[���
-\����\��Ή�ۉ�H�	��NB�B���[��[ۈ�X��[�[�]
+<script>
+const HOURS=['07:00','08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00','22:00'];
+const CATS=['','NCars','NCase','Proove','Личное'];
 
-HY�
-[��Y��\�OOH�][�
-JH[�[����YH�YN��[Y[���][[Y[��RY
-	�[��ܙY[��K��[K�\�^HH	ۛۙI����\ܔ�]\
+let S = { tasks:[], history:[], fltr:{dump:'',today:''} };
+let schedId = null;
+let currentView = null; // 'dump','today','schedule','history'
+let currentFilter = '';
+let pinBuffer = '';
+const DEFAULT_PIN = '1234';
+let pinUnlocked = false;
 
-NH[�H\]T[����YJN��[Y[���][[Y[��RY
-	�[�\���K�^�۝[�H	�'t-t,�-t`4/tb�.HS���][Y[�]
+// ── Firebase ─────────────────────────────────
+window._fbLoaded = function(data) {
+  if (data) { S.tasks=data.tasks||[]; S.history=data.history||[]; S.fltr=data.fltr||{dump:'',today:''}; }
+  pinUnlocked = true;
+  document.getElementById('pinScreen').style.display = 'none';
+  showAppOrSetup();
+};
+function save() { if(window._fbSave) window._fbSave({tasks:S.tasks,history:S.history,fltr:S.fltr}); }
 
+// ── Setup ─────────────────────────────────────
+function doSetup() {
+  const v=k=>document.getElementById(k).value.trim();
+  const cfg={apiKey:v('c_key'),authDomain:v('c_auth'),databaseURL:v('c_db'),projectId:v('c_proj'),appId:v('c_app')};
+  if(!cfg.apiKey||!cfg.databaseURL){alert('Нужны как минимум apiKey и databaseURL');return;}
+  localStorage.setItem('fbCfg',JSON.stringify(cfg));
+  alert('Готово! Вставь уданные Firebase прямо в HTML-файл (раздел firebaseConfig) для работы на всех устройствахбез настройки.');
+  location.reload();
+}
 
-OO��[��Y��\�I���\]T[���
-N���[Y[���][[Y[��RY
-	�[�\���K�^�۝[�I���KL
-NB�B���[��[ۈ���\ܔ�]\
+// ── PIN ───────────────────────────────────────
+function getPin() { return localStorage.getItem('appPin')||DEFAULT_PIN; }
 
-H�ۜ��YY�]\H]�[��˗٘��]�H�[��˗٘��]�K����[��
-K�[�����Y��\�X�\�H[�XYH�YY]K���\���[Y[���][[Y[��RY
-	�\	�K��[K�\�^HH	؛�����[�\�
-NB���[��[ۈ���[��]\
+function checkPin() {
+  const pinEl = document.getElementById('pinScreen');
+  // Show setup if firebase not configured
+  const fbOk = !(window._fbSave && window._fbSave.toString().includes('{}'));
+  pinEl.style.display = 'flex';
+  document.getElementById('pinChangeBtn').style.visibility = 'visible';
+}
 
-H��[Y[���][[Y[��RY
-	�[��]��K��[YOI����[Y[���][[Y[��RY
-	�[��ۙ�\�I�K��[YOI����[Y[���][[Y[��RY
-	�[��]\\���K�^�۝[�I����[Y[���][[Y[��RY
-	�T[��]\	�K��[K�\�^OIٛ^	�B��[��[ۈ�ۙ�\�T[��]\
+function pp(d) {
+  if (pinBuffer.length >= 4) return;
+  pinBuffer += d;
+  updatePinDots();
+  if (pinBuffer.length === 4) setTimeout(checkPinInput, 150);
+}
+function pdel() { pinBuffer = pinBuffer.slice(0,-1); updatePinDots(); document.getElementById('pinErr').textContent=''; }
 
-H�ۜ��Y��[Y[���][[Y[��RY
-	�[��]��K��[YN�ۜ��Y��[Y[���][[Y[��RY
-	�[��ۙ�\�I�K��[YNY�Kח�I˝\�
-�J^���[Y[���][[Y[��RY
-	�[��]\\���K�^�۝[�I�S�4-4/�.�-�-t/H4,tb�`�c
-4a�.4a4`4b��ܙ]\���B�Y��OOX�^���[Y[���][[Y[��RY
-	�[��]\\���K�^�۝[�I�S�4/t-H4`t/�,�/�,4-4,4-t`��ܙ]\���B���[�ܘY�K��]][J	�\[���N���S[�
-	�T[��]\	�NۘX��	��$�S�4.4-�/4-t/tdt/I�NB����8� 8� ][�8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� ��[��[ۈZY
+function updatePinDots(err) {
+  for (let i=0;i<4;i++) {
+    const d = document.getElementById('pd'+i);
+    d.className = 'pdot' + (i < pinBuffer.length ? (err?' err':' on') : '');
+  }
+}
 
-^ܙ]\��]K����
-K����[��͊J�X]��[��J
-K����[��͊K��X�J�
-JN�B��[��[ۈ�^R�^J
-^��ۜ�[�]�]J
-Nܙ]\��	���]�[YX\�
-_KI����][۝
+function checkPinInput() {
+  if (pinBuffer === getPin()) {
+    pinUnlocked = true;
+    document.getElementById('pinScreen').style.display = 'none';
+    showAppOrSetup();
+  } else {
+    updatePinDots(true);
+    document.getElementById('pinErr').textContent = 'Неверный PIN';
+    setTimeout(()=>{ pinBuffer=''; updatePinDots(); document.getElementById('pinErr').textContent=''; }, 900);
+  }
+}
 
-J�J_KI����]]J
-J_X�B��[��[ۈ��^ܙ]\����[���K�Y�\�
-�	�	�N�B��[��[ۈ\���^ܙ]\���	��K��\X�Jɋ��	ɘ[\��K��\X�J���	ɛ��K��\X�Jϋ��	ə���N�B��[��[ۈ�
-^ܙ]\���Y��YY][N�K�Ό��ۙN��	�Ό�V�O����B��[��[ۈ
-
-^ܙ]\���Y���(t`4/�a�/t/��YY][N��$�,4-�/t/���Ή�'�/�`�/�/	�V�_	���B��[��[ۈ�
-
-^�Y�Y
-\�]\������ۜ��K^WOY��]
-	�I�Nܙ]\��	�^_K��_X�B��[��[ۈ��[
-
-^�Y�Y
-\�]\������ۜ��KK^WOY��]
-	�I�N��ۜ�OV��+�/t,��	�)4-t,��	�'4,4`	�	�$4/�`	�	�'4,4.I�	�&4c�/I�	�&4c�.��	�$4,�,��	�(t-t/I�	�'�.�`��	�'t/�c��	�%4-t.��Nܙ]\��	��^_H	�V��KLW_H	�_X�B���[��[ۈۘX��\��H��[Y[��]Y\�T�[X�ܐ[
-	˜ۘX���K��ܑXX�
-OO�K��[[ݙJ
-JN�ۜ�OY��[Y[��ܙX]Q[[Y[�
-	�]��N�K��\�Ә[YOI�ۘX����K�^�۝[�[\����[Y[����K�\[��[
-JN��][Y[�]
+function showAppOrSetup() {
+  const needSetup = !window._fbSave || window._fbSave.toString().length < 20;
+  // If Firebase already loaded data, show app
+  document.getElementById('app').style.display = 'block';
+  render();
+}
 
+function showPinSetup() {
+  document.getElementById('pinNew').value='';
+  document.getElementById('pinConfirm').value='';
+  document.getElementById('pinSetupErr').textContent='';
+  document.getElementById('mPinSetup').style.display='flex';
+}
+function confirmPinSetup() {
+  const n=document.getElementById('pinNew').value;
+  const c=document.getElementById('pinConfirm').value;
+  if(!/^\d{4}$/.test(n)){document.getElementById('pinSetupErr').textContent='PIN должен быть 4 цифры';return;}
+  if(n!==c){document.getElementById('pinSetupErr').textContent='PIN не совпадает';return;}
+  localStorage.setItem('appPin',n);
+  closeMod('mPinSetup');
+  snack('✓ PIN изменён');
+}
 
-OO�K��[[ݙJ
-K�
-NB����8� 8� �]�Y�][ۈ8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� 8� ��ۜ�URS��ӑ�Q�H[\��X�ێ��'��I��ΉܙؘJL���MK�MJI�XY[�Ή�&�/�/�.4.�.�,	�X�[ێ��&4-�/4-t/t.4`�cS��K��^N��X�ێ��'�����ΉܙؘJL���MK�MJI�XY[�Ή�'�.�,4/H4-4/tc��X�[ێ��(�,t`4,4`�c4,�b�/�/�.�/K��K���Y[N��X�ێ��'�d	��ΉܙؘJ�MKMK�MJI�XY[�Ή�(4,4`t/�.4`t,4/t.4-I�X�[ێ���K�\�ܞN��X�ێ���$���ΉܙؘJ
-L�NNKK�MJI�XY[�ding:'История',      action:'Очистить' },
+// ── Utils ─────────────────────────────────────
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,5);}
+function todayKey(){const d=new Date();return`${d.getFullYear()}-${p2(d.getMonth()+1)}-${p2(d.getDate())}`;}
+function p2(n){return String(n).padStart(2,'0');}
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function po(p){return{high:0,medium:1,low:2,none:3,'':3}[p]??3;}
+function pl(p){return{high:'Срочно',medium:'Важно',low:'Потом'}[p]||'';}
+function fd(d){if(!d)return'';const[,m,day]=d.split('-');return`${day}.${m}`;}
+function fdFull(d){if(!d)return'';const[y,m,day]=d.split('-');const M=['Янв','Фев','Мар','Апр','Май','Июн','Июл','Авг','Сен','Окт','Ноя','Дек'];return`${+day} ${M[+m-1]} ${y}`;}
+
+function snack(msg) {
+  document.querySelectorAll('.snack').forEach(e=>e.remove());
+  const e=document.createElement('div');e.className='snack';e.textContent=msg;
+  document.body.appendChild(e);setTimeout(()=>e.remove(),2000);
+}
+
+// ── Navigation ────────────────────────────────
+const DETAIL_CONFIG = {
+  dump:     { icon:'📥', bg:'rgba(0,122,255,.15)',  heading:'Копилка',      action:'Изменить PIN' },
+  today:    { icon:'📋', bg:'rgba(0,122,255,.15)',  heading:'План дня',     action:'Убрать выполн.' },
+  schedule: { icon:'🕐', bg:'rgba(255,149,0,.15)',  heading:'Расписание',   action:'' },
+  history:  { icon:'✓',  bg:'rgba(52,199,89,.15)',  heading:'История',      action:'Очистить' },
 };
 
 function openDetail(view) {
@@ -972,7 +1089,7 @@ function confirmBulk(){
   const txt=document.getElementById('bTxt').value.trim();if(!txt)return;
   const prio=document.getElementById('bPrio').value,cat=document.getElementById('bCat').value;
   const lines=txt.split('\n').map(s=>s.trim()).filter(Boolean);
-  lines.forEach(l=>S.tasks.push({id:uid(),text:l,prio,cat,done:false,date:todayKey(),scheduledTime:null,inToday:currentView==='today'}));
+  lines.forEach(l=>S.tasks.push({id:uid(),text:l,prio,cat,done:false,date:todayKey(),scheduledTime:null,inToday:currentView==='today' }));
   document.getElementById('bTxt').value='';
   closeMod('mBulk');save();renderDetail();render();snack(`+${lines.length} задач`);
 }
@@ -986,10 +1103,9 @@ function showCtx(e, taskId) {
   const menu = document.getElementById('ctxMenu');
   menu.className = 'ctx-menu';
   menu.innerHTML = `
-    ${!isToday?`<div class="ctx-item" onclick="toToday('${t.id}');closeCtx()"><span>Добавить в план дня</span><span class="ctx-icon">📋</span></div>`:''}
+    ${!isToday?`<div class="ctx-item" onclick="toToday('${t.id}');closeCtx()"><span>Добавить в план дня</span><span class="ctx-icon">📋</pan></div>`:''}
     ${isToday?`<div class="ctx-item" onclick="fromToday('${t.id}');closeCtx()"><span>Убрать из плана дня</span><span class="ctx-icon">↩</span></div>`:''}
-    ${!t.scheduledTime?`<div class="ctx-item" onclick="openSched('${t.id}');closeCtx()"><span>Поставить в расписание</span><span class="ctx-icon">🕐</span></div>`:''}
-    ${t.scheduledTime?`<div class="ctx-item" onclick="unsched('${t.id}');closeCtx()"><span>Убрать из расписания</span><span class="ctx-icon">↩</span></div>`:''}
+    ${isToday&&!t.scheduledTime?`<div class="ctx-item" onclick="openSched('${t.id}');closeCtx()"><span>Поставить в расписание</span><span class="ctx-icon">🕐</span></div>`:''}
     <div class="ctx-item danger" onclick="del('${t.id}');closeCtx()"><span>Удалить</span><span class="ctx-icon">🗑</span></div>
   `;
   // Position near tap
@@ -1075,57 +1191,34 @@ function taskRow(t) {
     </div>`;
 }
 
-function renderSchedule(){
-  const today=todayKey();
-  const un=S.tasks.filter(t=>t.inToday&&!t.scheduledTime);
-  let html='';
-  html+=`<div style="display:flex;justify-content:flex-end;margin-bottom:14px">
-    <button onclick="openSchedNew()" style="background:var(--blue);color:white;border:none;border-radius:var(--radius-sm);padding:9px 18px;font-size:14px;font-weight:600;cursor:pointer;font-family:-apple-system,sans-serif">+ Событие</button>
-  </div>`;
-  if(un.length){
-    html+=`<div class="unscheduled-section"><div class="hist-sec-title" style="margin-bottom:8px">Нераспределённые (сегодня)</div>
+function renderSchedule() {
+  const un = S.tasks.filter(t=>t.inToday&&!t.scheduledTime);
+  let html = '';
+  if(un.length) {
+    html += `<div class="unscheduled-section"><div class="hist-sec-title" style="margin-bottom:8px">Нераспределённые</div>
       ${un.map(t=>`<div class="unsched-row">
         <span style="font-size:15px">${esc(t.text)}</span>
         <span class="unsched-add" onclick="openSched('${t.id}')">Поставить +</span>
       </div>`).join('')}
     </div>`;
   }
-  const scheduled=S.tasks.filter(t=>t.scheduledTime&&(t.scheduledDate||t.inToday));
-  scheduled.forEach(t=>{if(!t.scheduledDate)t.scheduledDate=today;});
-  const byDate={};
-  scheduled.forEach(t=>{const dk=t.scheduledDate;if(dk>=today){if(!byDate[dk])byDate[dk]=[];byDate[dk].push(t);}});
-  const dates=Object.keys(byDate).sort();
-  if(!dates.length&&!un.length){
-    html+=`<div class="empty-state"><div class="empty-emoji">🕐</div><div class="empty-msg">Расписание пусто</div><div class="empty-sub">Нажми «+ Событие» чтобы добавить</div></div>`;
-    return html;
-  }
-  dates.forEach(dk=>{
-    const label=dk===today?'Сегодня':fdFull(dk);
-    const dayTasks=[...byDate[dk]].sort((a,b)=>a.scheduledTime.localeCompare(b.scheduledTime));
-    html+=`<div style="margin-bottom:16px">
-      <div class="hist-sec-title" style="margin-bottom:6px">${label}</div>
-      <div class="tasks-card">${dayTasks.map(t=>`
-        <div class="swipe-wrap" data-id="${t.id}">
-          <div class="swipe-bg"><div class="swipe-bg-left">✓</div><div class="swipe-bg-right">🗑</div></div>
-          <div class="task-row ${t.done?'done':''}"
-            oncontextmenu="showCtx(event,'${t.id}')"
-            ontouchstart="swipeStart(event,this)"
-            ontouchmove="swipeMove(event,this)"
-            ontouchend="swipeEnd(event,this,'${t.id}')">
-            <div class="task-circle${t.prio==='high'?' ph':t.prio==='medium'?' pm':t.prio==='low'?' pl':''}${t.done?' checked':''}" onclick="tog('${t.id}')"></div>
-            <div class="task-body">
-              <div class="task-text">${esc(t.text)}</div>
-              <div class="task-meta">
-                <span class="meta-time">◷ ${t.scheduledTime}</span>
-                ${t.cat?`<span class="meta-tag">${t.cat}</span>`:''}
-              </div>
-            </div>
-            <button class="task-more" onclick="showCtx(event,'${t.id}')">···</button>
+  html += `<div class="hist-sec-title" style="margin-bottom:8px">Расписание</div>`;
+  html += HOURS.map(h=>{
+    const st=S.tasks.filter(t=>t.scheduledTime===h&&t.inToday);
+    return `<div class="sched-row">
+      <div class="sched-time">${h}</div>
+      <div class="sched-content">
+        ${st.map(t=>`<div class="sched-task ${t.done?'done-s':t.prio==='high'?'sh':t.prio==='medium'?'sm':''}" onclick="tog('${t.id}')">
+          <span>${esc(t.text)}</span>
+          <div style="display:flex;gap:6px;align-items:center">
+            ${t.done?`<span style="color:var(--green);font-size:13px">✓</span>`:''}
+            <button style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;padding:0" onclick="event.stopPropagation();unsched('${t.id}')">×</button>
           </div>
         </div>`).join('')}
+        ${!st.length?`<div class="sched-empty" onclick="openSchedH('${h}')">+ задача</div>`:''}
       </div>
     </div>`;
-  });
+  }).join('');
   return html;
 }
 
@@ -1175,40 +1268,20 @@ function clearHist(){if(!confirm('Очистить всю историю?'))retu
 function openSched(id){
   schedId=id;const t=S.tasks.find(t=>t.id===id);if(!t)return;
   document.getElementById('mTxt').value=t.text;
-  document.getElementById('mTxt').readOnly=true;
-  document.getElementById('mDate').value=t.scheduledDate||todayKey();
   document.getElementById('mTime').value=t.scheduledTime||'09:00';
-  document.getElementById('mSched').style.display='flex';
-}
-function openSchedNew(){
-  schedId=null;
-  document.getElementById('mTxt').value='';
-  document.getElementById('mTxt').readOnly=false;
-  document.getElementById('mDate').value=todayKey();
-  document.getElementById('mTime').value='09:00';
   document.getElementById('mSched').style.display='flex';
 }
 function openSchedH(h){
   const t=S.tasks.find(t=>t.inToday&&!t.scheduledTime);
-  if(t){schedId=t.id;document.getElementById('mTxt').value=t.text;document.getElementById('mTxt').readOnly=true;}
-  else{schedId=null;document.getElementById('mTxt').value='';document.getElementById('mTxt').readOnly=false;}
-  document.getElementById('mDate').value=todayKey();
-  document.getElementById('mTime').value=h;
-  document.getElementById('mSched').style.display='flex';
+  if(!t){snack('Нет нераспланированных задач');return;}
+  schedId=t.id;document.getElementById('mTxt').value=t.text;
+  document.getElementById('mTime').value=h;document.getElementById('mSched').style.display='flex';
 }
 function confirmSched(){
   const time=document.getElementById('mTime').value;
-  const date=document.getElementById('mDate').value||todayKey();
-  const txt=document.getElementById('mTxt').value.trim();
-  if(schedId){
-    const t=S.tasks.find(t=>t.id===schedId);if(!t)return;
-    t.scheduledTime=time;t.scheduledDate=date;
-    if(date===todayKey())t.inToday=true;
-  } else {
-    if(!txt){snack('Введи описание задачи');return;}
-    S.tasks.push({id:uid(),text:txt,prio:'none',cat:'',done:false,date:date,scheduledTime:time,scheduledDate:date,inToday:date===todayKey()});
-  }
-  closeMod('mSched');save();renderDetail();render();snack('◷ '+time);
+  const t=S.tasks.find(t=>t.id===schedId);if(!t)return;
+  t.scheduledTime=time;t.inToday=true;
+  closeMod('mSched');save();renderDetail();render();snack(`◷ ${time}`);
 }
 function closeMod(id){document.getElementById(id).style.display='none';}
 
@@ -1289,69 +1362,6 @@ let lpTimer;
 function startLongPress(e,id){lpTimer=setTimeout(()=>showCtx(e,id),500);}
 function cancelLongPress(){clearTimeout(lpTimer);}
 
-// ── Home expand ───────────────────────────────
-let homeExpanded={today:false,sched:false};
-
-function toggleExpand(key,ev){
-  if(ev){ev.preventDefault();ev.stopPropagation();}
-  homeExpanded[key]=!homeExpanded[key];
-  renderHomeExpanded();
-}
-
-function expandRow(t){
-  const cc=`exp-circle${t.done?' done':t.prio==='high'?' ph':t.prio==='medium'?' pm':t.prio==='low'?' pl':''}`;
-  const timeBadge=t.scheduledTime?`<span style="font-size:12px;color:var(--blue);margin-left:4px">◷ ${t.scheduledTime}${t.scheduledDate&&t.scheduledDate!==todayKey()?' '+fd(t.scheduledDate):''}</span>`:'';
-  return `<div class="expand-task-row">
-    <div class="${cc}" onclick="togH('${t.id}')"></div>
-    <div class="exp-text${t.done?' done':''}">${esc(t.text)}${timeBadge}</div>
-    <button style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:15px;padding:2px 4px;line-height:1" onclick="showCtx(event,'${t.id}')">···</button>
-  </div>`;
-}
-
-function togH(id){
-  const t=S.tasks.find(t=>t.id===id);if(!t)return;
-  t.done=!t.done;save();render();if(t.done)snack('✓');
-}
-
-function renderHomeExpanded(){
-  const today=todayK%y();
-  // Plan day panel
-  const tp=document.getElementById('panel-today');
-  const tc=document.getElementById('chev-today');
-  if(tp){
-    if(homeExpanded.today){
-      tp.style.display='block';
-      let ts=S.tasks.filter(t=>t.inToday);
-      ts.sort((a,b)=>{if(a.done!==b.done)return a.done?1:-1;if(a.scheduledTime&&!b.scheduledTime)return-1;if(!a.scheduledTime&&b.scheduledTime)return 1;if(a.scheduledTime&&b.scheduledTime)return a.scheduledTime.localeCompare(b.scheduledTime);return po(a.prio)-po(b.prio);});
-      tp.innerHTML=ts.length?ts.map(t=>expandRow(t)).join(''):`<div style="padding:12px 16px;font-size:14px;color:var(--text2);text-align:center">Список пуст — <span style="color:var(--blue);cursor:pointer" onclick="openDetail('today')">добавить задачу</span></div>`;
-    } else { tp.style.display='none'; }
-    if(tc)tc.className='exp-chev'+(homeExpanded.today?' open':'');
-  }
-  // Schedule panel
-  const sp=document.getElementById('panel-sched');
-  const sc=document.getElementById('chev-sched');
-  if(sp){
-    if(homeExpanded.sched){
-      sp.style.display='block';
-      let ts=S.tasks.filter(t=>t.scheduledTime&&(t.scheduledDate||t.inToday));
-      ts.forEach(t=>{if(!t.scheduledDate)t.scheduledDate=today;});
-      ts=ts.filter(t=>t.scheduledDate>=today);
-      ts.sort((a,b)=>((a.scheduledDate||today)+' '+(a.scheduledTime||'00:00')).localeCompare((b.scheduledDate||today)+' '+(b.scheduledTime||'00:00')));
-      if(ts.length){
-        const byDate={};
-        ts.forEach(t=>{const dk=t.scheduledDate||today;if(!byDate[dk])byDate[dk]=[];byDate[dk].push(t);});
-        sp.innerHTML=Object.keys(byDate).sort().map(dk=>{
-          const lbl=dk===today?'Сегодня':fdFull(dk);
-          return`<div style="padding:6px 16px 2px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text3)">${lbl}</div>`+byDate[dk].map(t=>expandRow(t)).join('');
-        }).join('');
-      } else {
-        sp.innerHTML=`<div style="padding:12px 16px;font-size:14px;color:var(--text2);text-align:center">Нет событий — <span style="color:var(--blue);cursor:pointer" onclick="openDetail('schedule')">открыть расписание</span></div>`;
-      }
-    } else { sp.style.display='none'; }
-    if(sc)sc.className='exp-chev'+(homeExpanded.sched?' open':'');
-  }
-}
-
 // ── Global render ─────────────────────────────
 function render(){
   const td=S.tasks.filter(t=>t.inToday);
@@ -1359,7 +1369,7 @@ function render(){
   const pct=total?Math.round(done/total*100):0;
   const dump=S.tasks.filter(t=>!t.inToday).length;
   const high=S.tasks.filter(t=>t.prio==='high'&&!t.done).length;
-  const sched=S.tasks.filter(t=>t.scheduledTime).length;
+  const sched=S.tasks.filter(t=>t.scheduledTime&&t.inToday).length;
   const hist=S.history.reduce((a,h)=>a+h.tasks.length,0)+S.tasks.filter(t=>t.done).length;
 
   document.getElementById('sc-dump').textContent=dump;
@@ -1373,7 +1383,6 @@ function render(){
   document.getElementById('progFill').style.width=pct+'%';
   document.getElementById('progPct').textContent=pct+'%';
   document.getElementById('hdate').textContent=new Date().toLocaleDateString('ru-RU',{weekday:'short',day:'numeric',month:'short'});
-  renderHomeExpanded();
 }
 
 // ── Init ──────────────────────────────────────
