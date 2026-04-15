@@ -559,10 +559,8 @@ body {
 .sched-empty:active { color: var(--text2); background: var(--card2); }
 
 .unscheduled-section { margin-bottom: 20px; }
-.sched-date-bar { display:flex; align-items:center; justify-content:space-between; padding:10px 16px 14px; }
-.sched-date-btn { background:none; border:none; font-size:22px; color:var(--text2); cursor:pointer; padding:4px 8px; border-radius:8px; }
-.sched-date-btn:active { background:var(--card2); }
-.sched-date-label { font-size:16px; font-weight:600; cursor:pointer; color:var(--text1); }
+.sched-date-bar { display:flex; align-items:center; padding:10px 16px 14px; }
+.sched-date-label { font-size:16px; font-weight:600; color:var(--blue); }
 .unsched-row {
   display: flex; align-items: center; justify-content: space-between;
   background: var(--card); border-radius: var(--radius-sm);
@@ -1220,12 +1218,6 @@ function taskRow(t) {
     </div>`;
 }
 
-function schedDateOffset(delta){
-  const d=new Date(currentSchedDate+'T00:00:00');
-  d.setDate(d.getDate()+delta);
-  currentSchedDate=d.toISOString().slice(0,10);
-  renderDetail();
-}
 function fdShort(d){
   if(!d)return'';
   const dt=new Date(d+'T00:00:00');
@@ -1246,11 +1238,11 @@ function renderSchedule() {
     ? S.tasks.filter(t=>t.inToday&&!t.scheduledTime&&!t.scheduledDate)
     : S.tasks.filter(t=>t.scheduledDate===d&&!t.scheduledTime);
   let html = `<div class="sched-date-bar">
-    <button class="sched-date-btn" onclick="schedDateOffset(-1)">‹</button>
-    <span class="sched-date-label" onclick="document.getElementById('schedDatePick').click()">${fdShort(d)}</span>
-    <button class="sched-date-btn" onclick="schedDateOffset(1)">›</button>
-  </div>
-  <input type="date" id="schedDatePick" value="${d}" style="position:absolute;opacity:0;pointer-events:none" onchange="currentSchedDate=this.value;renderDetail()">`;
+    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;position:relative">
+      <span class="sched-date-label">📅 ${fdShort(d)}</span>
+      <input type="date" value="${d}" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%" onchange="currentSchedDate=this.value;renderDetail()">
+    </label>
+  </div>`;
   if(un.length) {
     html += `<div class="unscheduled-section"><div class="hist-sec-title" style="margin-bottom:8px">Нераспределённые</div>
       ${un.map(t=>`<div class="unsched-row">
