@@ -571,9 +571,11 @@ body {
   transition:background .15s, color .15s;
 }
 .sched-date-pill.active { background:var(--blue); color:#fff; }
-.sched-date-pill.other { position:relative; overflow:hidden; }
+.sched-date-pill.other { position:relative; overflow:hidden; min-width:120px; }
 .sched-date-pill.other input[type=date] {
-  position:absolute; inset:0; opacity:0; cursor:pointer; width:100%;
+  position:absolute; inset:-20px; opacity:0; cursor:pointer;
+  width:calc(100% + 40px); height:calc(100% + 40px);
+  font-size:16px;
 }
 .unsched-row {
   display: flex; align-items: center; justify-content: space-between;
