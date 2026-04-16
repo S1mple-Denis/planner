@@ -479,6 +479,15 @@ body {
   background: var(--card2); border-radius: 5px;
   padding: 1px 6px;
 }
+/* ── PROJECT LOGOS ───────────────────────────── */
+.proj-badge { display:inline-flex; align-items:center; gap:4px; border-radius:6px; padding:1px 6px 1px 3px; font-size:12px; font-weight:600; }
+.proj-logo { width:16px; height:16px; border-radius:3px; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; }
+.proj-picker { display:flex; gap:8px; margin-top:8px; flex-wrap:wrap; }
+.proj-btn { display:flex; align-items:center; gap:6px; padding:7px 12px; border-radius:12px; border:2px solid transparent; cursor:pointer; font-size:14px; font-weight:600; background:var(--card2); transition:all .15s; -webkit-user-select:none; user-select:none; }
+.proj-btn.selected { border-color: currentColor; }
+.proj-btn .proj-logo-lg { width:24px; height:24px; border-radius:5px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.fpill-logo { display:inline-flex; align-items:center; gap:5px; }
+.fpill-logo .proj-logo { width:14px; height:14px; }
 .meta-time { font-size: 12px; color: var(--blue); }
 .task-more {
   background: none; border: none; color: var(--text3); cursor: pointer;
@@ -953,13 +962,17 @@ body {
           <option value="medium">→ Важно</option>
           <option value="low">↓ Потом</option>
         </select>
-        <select class="add-sel" id="addCat">
-          <option value="">Без категории</option>
-          <option value="NCars">NCars</option>
-          <option value="NCase">NCase</option>
-          <option value="Proove">Proove</option>
-          <option value="Личное">Личное</option>
-        </select>
+        <div id="addCatPicker" class="proj-picker" style="margin-top:0;gap:6px">
+          <button class="proj-btn selected" data-cat="" onclick="selectCat('')" style="padding:5px 10px;font-size:13px;color:#8E8E93">Без проекта</button>
+          <button class="proj-btn" data-cat="NCars" onclick="selectCat('NCars')" style="color:#4A90D9;font-size:13px;padding:5px 10px">
+            <span class="proj-logo-lg" style="width:20px;height:20px;background:linear-gradient(135deg,#5BAAE8,#2E6FBF);border-radius:4px;display:flex;align-items:center;justify-content:center"><svg width="12" height="12" viewBox="0 0 32 32"><path d="M7 8h4.5l6 10V8H22v16h-4.5l-6-10v10H7z" fill="white"/></svg></span>NCars</button>
+          <button class="proj-btn" data-cat="NCase" onclick="selectCat('NCase')" style="color:#2ECC71;font-size:13px;padding:5px 10px">
+            <span class="proj-logo-lg" style="width:20px;height:20px;background:linear-gradient(135deg,#3DD68C,#1E9E55);border-radius:4px;display:flex;align-items:center;justify-content:center"><svg width="12" height="12" viewBox="0 0 32 32"><path d="M7 8h4.5l6 10V8H22v16h-4.5l-6-10v10H7z" fill="white"/></svg></span>NCase</button>
+          <button class="proj-btn" data-cat="Proove" onclick="selectCat('Proove')" style="color:#74B9E8;font-size:13px;padding:5px 10px">
+            <span class="proj-logo-lg" style="width:20px;height:20px;background:#EEF6FD;border-radius:4px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:#74B9E8">P</span>Proove</button>
+          <button class="proj-btn" data-cat="Личное" onclick="selectCat('Личное')" style="color:#AF52DE;font-size:13px;padding:5px 10px">
+            <span style="font-size:14px">👤</span>Личное</button>
+        </div>
         <button class="bulk-btn" onclick="showBulk()">Списком</button>
         <button class="add-sched-btn" id="addSchedBtn" title="Назначить дату и время" onclick="toggleAddSched()">🕐</button>
       </div>
@@ -1030,6 +1043,44 @@ body {
 <script>
 window._appStart = Date.now();
 const HOURS=['07:00','08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00','22:00'];
+
+// ── Project config ────────────────────────────
+const PROJECTS = {
+  '': { label:'Без проекта', color:'#8E8E93', logoHtml:'<span style="font-size:12px">·</span>' },
+  'NCars':  {
+    label:'NCars', color:'#4A90D9',
+    logoHtml:`<svg width="16" height="16" viewBox="0 0 32 32"><rect width="32" height="32" rx="6" fill="url(#ncr-g)"/><defs><linearGradient id="ncr-g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5BAAE8"/><stop offset="1" stop-color="#2E6FBF"/></linearGradient></defs><path d="M7 8h4.5l6 10V8H22v16h-4.5l-6-10v10H7z" fill="white"/></svg>`
+  },
+  'NCase':  {
+    label:'NCase', color:'#2ECC71',
+    logoHtml:`<svg width="16" height="16" viewBox="0 0 32 32"><rect width="32" height="32" rx="6" fill="url(#ncs-g)"/><defs><linearGradient id="ncs-g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3DD68C"/><stop offset="1" stop-color="#1E9E55"/></linearGradient></defs><path d="M7 8h4.5l6 10V8H22v16h-4.5l-6-10v10H7z" fill="white"/></svg>`
+  },
+  'Proove': {
+    label:'Proove', color:'#74B9E8',
+    logoHtml:`<svg width="16" height="16" viewBox="0 0 32 32"><rect width="32" height="32" rx="6" fill="#EEF6FD"/><text x="16" y="23" text-anchor="middle" font-size="13" font-weight="700" fill="#74B9E8" font-family="Arial">P</text></svg>`
+  },
+  'Личное': {
+    label:'Личное', color:'#AF52DE',
+    logoHtml:`<svg width="16" height="16" viewBox="0 0 32 32"><rect width="32" height="32" rx="6" fill="rgba(175,82,222,.2)"/><text x="16" y="22" text-anchor="middle" font-size="16" fill="#AF52DE" font-family="Arial">👤</text></svg>`
+  },
+};
+function projLogo(cat, size=16){
+  const p=PROJECTS[cat||''];if(!p)return cat||'';
+  return p.logoHtml.replace(/width="16"/g,`width="${size}"`).replace(/height="16"/g,`height="${size}"`);
+}
+function projBadge(cat){
+  if(!cat)return'';
+  const p=PROJECTS[cat];if(!p)return`<span class="meta-tag">${cat}</span>`;
+  return `<span class="proj-badge" style="background:${p.color}18;color:${p.color}">${projLogo(cat)} ${p.label}</span>`;
+}
+let selectedCat = '';
+function selectCat(val){
+  selectedCat=val;
+  document.querySelectorAll('.proj-btn').forEach(b=>{
+    b.classList.toggle('selected', b.dataset.cat===val);
+    b.style.borderColor = b.dataset.cat===val ? PROJECTS[val]?.color||'var(--blue)' : 'transparent';
+  });
+}
 const CATS=['','NCars','NCase','Proove','Личное'];
 
 let S = { tasks:[], history:[], fltr:{dump:'',today:''} };
@@ -1204,7 +1255,7 @@ function addTask() {
   const inp=document.getElementById('addInput');
   const txt=inp.value.trim(); if(!txt)return;
   const prio=document.getElementById('addPrio').value;
-  const cat=document.getElementById('addCat').value;
+  const cat=selectedCat;
   const schedOpen=document.getElementById('addSchedRow').classList.contains('open');
   const schedDate=schedOpen?document.getElementById('addSchedDate').value:null;
   const schedTime=schedOpen?document.getElementById('addSchedTime').value:null;
@@ -1269,10 +1320,13 @@ function renderDetail() {
   if (currentView==='matrix')   body.innerHTML = renderMatrix();
 }
 
-function filterPills(panel, cats) {
+function filterPills() {
   return `<div class="filter-scroll" style="margin-bottom:12px">
-    ${['','NCars','NCase','Proove','Личное'].map(c=>`
-      <div class="fpill ${currentFilter===c?'active':''}" onclick="setFilter('${c}')">${c||'Все'}</div>
+    <div class="fpill ${currentFilter===''?'active':''}" onclick="setFilter('')">Все</div>
+    ${Object.entries(PROJECTS).filter(([k])=>k!=='').map(([k,p])=>`
+      <div class="fpill ${currentFilter===k?'active':''}" onclick="setFilter('${k}')" style="${currentFilter===k?'':''}">
+        <span class="fpill-logo">${projLogo(k,14)} ${p.label}</span>
+      </div>
     `).join('')}
   </div>`;
 }
@@ -1324,7 +1378,7 @@ function taskRow(t) {
           <div class="task-text">${esc(t.text)}</div>
           <div class="task-meta">
             ${t.prio&&t.prio!=='none'?`<div class="prio-dot pd-${t.prio[0]}"></div>`:''}
-            ${t.cat?`<span class="meta-tag">${t.cat}</span>`:''}
+            ${t.cat?projBadge(t.cat):''}
             ${t.scheduledTime?`<span class="meta-time" onclick="event.stopPropagation();openSched('${t.id}')" style="cursor:pointer">◷ ${t.scheduledTime} ✎</span>`:''}
             ${!t.inToday?`<span class="meta-tag" style="color:var(--blue);cursor:pointer" onclick="toToday('${t.id}')">+ В план дня</span>`:''}
           </div>
@@ -1407,7 +1461,7 @@ function histRow(t){
   return `<div class="hist-row">
     <div class="${t.done?'hist-check':'hist-no'}">${t.done?'✓':'○'}</div>
     <div class="hist-text ${t.done?'':'pending'}">${esc(t.text)}</div>
-    ${t.cat?`<span class="hist-cat">${t.cat}</span>`:''}
+    ${t.cat?projBadge(t.cat):''}
     ${t.scheduledDate&&t.scheduledDate!==t.date?`<span class="hist-cat" style="color:var(--blue)">📅${fdShort(t.scheduledDate)}</span>`:''}
   </div>`;
 }
