@@ -8,6 +8,7 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+  import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
   const firebaseConfig = {
     apiKey:            "AIzaSyAG8TV-ohf4VmdbIBkYSmHj9xAUGDuwaMA",
@@ -24,13 +25,21 @@
   if (ok) {
     const app = initializeApp(firebaseConfig);
     const db  = getDatabase(app);
+    const auth = getAuth(app);
     const dbRef = ref(db, 'planner/v2');
     let busy = false;
     window._fbSave = s => {
       if (busy) return; busy = true;
       set(dbRef, s).then(()=>{busy=false;sync('icloud');}).catch(e=>{busy=false;sync('err');console.error(e);});
     };
-    onValue(dbRef, snap => window._fbLoaded(snap.val()));
+    // Sign in anonymously, then start listening to data
+    signInAnonymously(auth).catch(e => {
+      console.warn('Auth failed, trying without auth:', e);
+      onValue(dbRef, snap => window._fbLoaded(snap.val()));
+    });
+    onAuthStateChanged(auth, user => {
+      if (user) onValue(dbRef, snap => window._fbLoaded(snap.val()));
+    });
   } else {
     window._fbSave = ()=>{};
     setTimeout(()=>window._fbLoaded(null), 80);
